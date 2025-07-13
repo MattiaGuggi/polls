@@ -5,7 +5,7 @@ import AnimatedContent from "../components/AnimatedContent";
 const RootLayout = ({ children }) => {
   return (
     <>
-        <header className="fixed flex flex-wrap sm:justify-start sm:flex-nowrap w-full bg-white text-sm py-3 dark:bg-neutral-800 py-5 top-0 shadow-custom">
+        <header className="absolute flex flex-wrap sm:justify-start sm:flex-nowrap w-full bg-white text-sm dark:bg-neutral-800 py-5 top-0 shadow-custom">
           <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
             <div
               id="hs-navbar-example"

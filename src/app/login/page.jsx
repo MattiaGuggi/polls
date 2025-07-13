@@ -67,20 +67,20 @@ const login = () => {
               placeholder="Email Address"
               onChange={(e) => setEmail(e.target.value)}
               value={email}
-              className={`w-full h-full pl-12 pr-12 py-4 bg-opacity-50 rounded-lg border border-gray-700 focus:border-indigo-700 focus:ring-2 focus:ring-indigo-700 placeholder-gray-400 transition duration-200 xs:py-3`}
+              className={`w-full h-full px-12 py-4 bg-opacity-50 rounded-lg border border-gray-700 focus:border-indigo-700 focus:ring-2 focus:ring-indigo-700 placeholder-gray-400 transition duration-200 xs:py-3`}
             />
           </div>
-          <div className={`input relative w-full flex`}>
+          <div className={`input relative w-full flex mt-8`}>
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none scale-110">
               <Lock className="size-5 text-indigo-900" />
             </div>
             <input
-              type={'password'}
+              type={`${showPassword ? 'text' : 'password'}`}
               required
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
               value={password}
-              className={`w-full h-full pl-12 pr-12 py-4 bg-opacity-50 rounded-lg border border-gray-700 focus:border-indigo-700 focus:ring-2 focus:ring-indigo-700 placeholder-gray-400 transition duration-200 xs:py-3`}
+              className={`w-full h-full px-12 py-4 bg-opacity-50 rounded-lg border border-gray-700 focus:border-indigo-700 focus:ring-2 focus:ring-indigo-700 placeholder-gray-400 transition duration-200 xs:py-3`}
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
               {showPassword ? (
@@ -108,7 +108,7 @@ const login = () => {
       <div className="px-8 py-4 bg-gray-600 bg-opacity-50 flex justify-center">
         <p className="text-sm text-indigo-950">
           {"Don't have an account?"}
-          <button onClick={() => router.push('/signup')} className="text-bg-indigo-700 hover:underline" type="button">
+          <button onClick={() => router.push('/signup')} className="text-bg-indigo-700 hover:underline cursor-pointer" type="button">
             Sign up
           </button>
         </p>
