@@ -19,16 +19,16 @@ const Home = () => {
   return (
     <ProtectedLayout>
       <AnimatedContent
-        distance={450}
+        distance={470}
         direction="vertical"
         reverse={true}
-        duration={0.7}
+        duration={0.6}
         ease="bounce.out"
         initialOpacity={0.2}
         animateOpacity
         scale={1.1}
         threshold={0.2}
-        delay={0.3}
+        delay={0.1}
       >
         <h1 className="text-4xl font-bold text-white mb-8">Welcome to My Next App</h1>
       </AnimatedContent>

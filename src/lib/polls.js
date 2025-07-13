@@ -1,4 +1,5 @@
-// Simple in-memory user store for demonstration
+import { getPollsFromDB, getPollFromDB, updatePollInDb } from "./db";
+
 let polls = [
     {
         _id: 1,
@@ -61,20 +62,22 @@ let polls = [
         ],
         image: ['https://cdn.uwufufu.com/selection/1740749490505-Ana%20de%20Armas.jpg']
     }
-]
+];
 
-export function updatePoll(newPoll) {
-    const poll = polls.find(p => p._id === newPoll.id) || null;
+// let polls = await getPollsFromDB();
 
-    if (!poll) return null;
+export async function updatePoll(newPoll) {
+    try {
+        await updatePollInDb(newPoll);
 
-    // Update the poll with new data
-    Object.assign(poll, newPoll);
-
-    return poll;
+        return newPoll;
+    } catch (err) {
+        console.error('Error updating poll', err);
+    }
 }
 
-export function getPoll(id) {
-    const poll = polls.find(p => p._id == id) || null;
+export async function getPoll(id) {
+    const poll = await getPollFromDB(id);
+
     return poll;
 }

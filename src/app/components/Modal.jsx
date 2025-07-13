@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 const Modal = ({ createPoll, open }) => {
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+    <div className='fixed h-full inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
       <motion.div
         className="absolute z-50 bg-white py-10 px-5 rounded-xl shadow-xl w-2/5"
         initial={{ scale: 0.8, opacity: 0 }}

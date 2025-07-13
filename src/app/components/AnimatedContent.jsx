@@ -69,7 +69,7 @@ const AnimatedContent = ({
         onComplete,
     ]);
 
-    return <div ref={ref} className="w-full h-full">{children}</div>;
+    return <div ref={ref} className="w-full mt-[80px]">{children}</div>;
 };
 
 export default AnimatedContent;

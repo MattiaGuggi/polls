@@ -1,15 +1,13 @@
-// Simple in-memory user store for demonstration
+import { getUsersFromDB, createUser, getUserFromDb } from './db.js';
 const users = [
     { username: 'panda', name: 'Mattia', surname: 'Guggi', email: 'test@gmail.com', password: 'password123' }
 ];
+// const users = await getUsersFromDB();
 
-export function authenticateUser(email, password) {
-  return users.find(u => u.email === email && u.password === password) || null;
+export async function authenticateUser(email, password) {
+  return await getUserFromDb({ email, password })  || null;
 }
 
-export function registerUser(name, email, password) {
-  if (users.find(u => u.email === email)) return null;
-  const user = { name, email, password };
-  users.push(user);
-  return user;
+export async function registerUser(name, email, password) {
+  await createUser({ name, email, password });
 }

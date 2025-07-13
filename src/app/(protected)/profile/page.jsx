@@ -60,7 +60,7 @@ const Profile = () => {
   }
 
   return (
-    <div className='w-1/4 min-h-full bg-white px-8 py-16 rounded-3xl shadow-lg flex flex-col items-center mt-36 shdaow-custom'>
+    <div className='w-1/4 min-h-full bg-white px-8 py-16 rounded-3xl shadow-lg flex flex-col items-center shdaow-custom'>
       <h1 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text'>Your Profile</h1>
       {message && (
         <div className='bg-green-500 px-5 py-2 rounded-md mb-4'>
