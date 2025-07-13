@@ -1,16 +1,6 @@
 import mongoose from "mongoose";
+import { User, Poll } from "./models.js";
 
-// Define the User schema
-const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    name: { type: String, required: true },
-    surname: { type: String, required: true },
-    pfp: { type: String, default: 'https://www.starksfamilyfh.com/image/9/original' },
-});
-
-const User = mongoose.model('User', userSchema);
 /**
  * Connects to MongoDB
  */
@@ -83,17 +73,6 @@ export const deleteUserFromDb = async (user) => {
         console.error('Error deleting user', err);
     }
 };
-
-// Define the User schema
-const pollSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    creator: { type: String, required: true },
-    participants: { type: [], required: true },
-    scoreboard: { type: [], required: true },
-    image: { type: String, default: 'https://cdn.uwufufu.com/selection/1740749490505-Ana%20de%20Armas.jpg' }
-});
-
-const Poll = mongoose.model('Poll', pollSchema);
 
 /**
  * Helper function to get every poll from MongoDB

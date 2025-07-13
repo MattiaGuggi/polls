@@ -25,11 +25,18 @@ const pollGame = () => {
         try {
             const response = await axios.get(`/api/polls/get`, { params: { id } });
             const data = response.data;
-            const shuffled = shuffleArray(data.poll.participants);
+            
+            // Ensure every participant has a numeric rating
+            const normalized = data.poll.participants.map((p) => ({
+                ...p,
+                rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating) || 1000,
+            }));
+
+            const shuffled = shuffleArray(normalized);
 
             setPoll(data.poll);
             setParticipants(shuffled);
-            setAllParticipants(shuffled); // Save full list
+            setAllParticipants(shuffled);
             setCurrentIndex(0);
             setNextRound([]);
             setCurrentPair(shuffled.slice(0, 2));
@@ -61,9 +68,9 @@ const pollGame = () => {
                 : currentPair[0]?.name)
         );
 
-        setNextRound(updatedNextRound);
+        const [updatedWinner, updatedLoser] = updateElo(latestWinner, loser);
+        setNextRound([...nextRound, updatedNextRound]);
         setRound((prev) => prev + 1);
-        updateElo(latestWinner, loser);
 
         const nextIndex = currentIndex + 2;
         if (nextIndex >= participants.length) {
@@ -88,16 +95,26 @@ const pollGame = () => {
     };
 
     const updateElo = (winner, loser) => {
-        if (!winner || !loser) return;
+        if (!winner || !loser) return [winner, loser];
 
         const k = 32;
-        const expectedWinner = 1 / (1 + Math.pow(10, (loser.rating - winner.rating) / 400));
+
+        const winnerRating = typeof winner.rating === 'number' ? winner.rating : parseFloat(winner.rating) || 1000;
+        const loserRating = typeof loser.rating === 'number' ? loser.rating : parseFloat(loser.rating) || 1000;
+
+        const expectedWinner = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400));
         const expectedLoser = 1 - expectedWinner;
 
-        const updatedWinner = { ...winner, rating: winner.rating + k * (1 - expectedWinner) };
-        const updatedLoser = { ...loser, rating: loser.rating + k * (0 - expectedLoser) };
+        const updatedWinner = {
+            ...winner,
+            rating: Number((winnerRating + k * (1 - expectedWinner)).toFixed(2))
+        };
 
-        // Save both updated players in global state
+        const updatedLoser = {
+            ...loser,
+            rating: Number((loserRating + k * (0 - expectedLoser)).toFixed(2))
+        };
+
         setAllParticipants((prev) =>
             prev.map((p) => {
                 if (p.name === updatedWinner.name) return updatedWinner;
@@ -105,6 +122,8 @@ const pollGame = () => {
                 return p;
             })
         );
+
+        return [updatedWinner, updatedLoser]; // RETURN THEM
     };
 
     const setUpWin = async (updatedNextRound) => {
@@ -116,9 +135,18 @@ const pollGame = () => {
             // Create updated poll object directly
             const updatedPoll = {
                 ...poll,
-                participants: allParticipants,
-                scoreboard: sortedParticipants,
+                participants: allParticipants.map(p => ({
+                    name: p.name,
+                    image: p.image,
+                    rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating) || 1000
+                })),
+                scoreboard: sortedParticipants.map(p => ({
+                    name: p.name,
+                    image: p.image,
+                    rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating) || 1000,
+                })),
             };
+
             const response = await axios.post(`/api/polls/update`, { poll: updatedPoll });
             const data = response.data;
 
