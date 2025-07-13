@@ -2,13 +2,13 @@ import { motion } from 'framer-motion';
 
 const Modal = ({ createPoll, open }) => {
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-10 flex items-center justify-center z-50'>
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
       <motion.div
         className="absolute z-50 bg-white py-10 px-5 rounded-xl shadow-xl w-2/5"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
-        transition={{ duration: 0.15 }}
+        transition={{ duration: 0.2 }}
       >
         <div className='w-full'>
           <h2 className='my-3 font-semibold text-xl'>Create a poll</h2>

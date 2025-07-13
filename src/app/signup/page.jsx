@@ -50,13 +50,13 @@ const signup = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className="max-w-md w-full bg-gray-500 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden xs:w-11/12"
-  >
-  <div className="p-8">
-    <h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text'>
-      Create Account
-    </h2>
-      {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={handleSubmit}>
+    >
+      <div className="p-8">
+        <h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text'>
+          Create Account
+        </h2>
+        {error && <p className="text-red-500">{error}</p>}
+        <form onSubmit={handleSubmit}>
           <div className={`input relative w-full flex`}>
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none scale-110">
               <User className="size-5 text-indigo-900" />
@@ -112,17 +112,17 @@ const signup = () => {
           >
           Sign Up
           </motion.button>
-      </form>
+        </form>
       </div>
-    <div className="px-8 py-4 bg-gray-600 bg-opacity-50 flex justify-center rounded-2xl">
-      <p className="text-sm text-indigo-950">
-        {"Already have an account?"}
-        <button onClick={() => router.push('/login')} className="text-bg-indigo-700 hover:underline" type="button">
-          Login
-        </button>
-      </p>
-    </div>
-  </motion.div>
+      <div className="px-8 py-4 bg-gray-600 bg-opacity-50 flex justify-center">
+        <p className="text-sm text-indigo-950">
+          {"Already have an account?"}
+          <button onClick={() => router.push('/login')} className="text-bg-indigo-700 hover:underline" type="button">
+            Login
+          </button>
+        </p>
+      </div>
+    </motion.div>
   )
 }
 

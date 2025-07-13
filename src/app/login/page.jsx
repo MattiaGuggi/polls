@@ -33,7 +33,7 @@ const login = () => {
     });
     const data = await res.json();
     if (data.success) {
-      login();
+      login(data.user);
       router.push('/');
     } else {
       setError(data.message || "Login failed");
@@ -49,7 +49,8 @@ const login = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-gray-500 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden xs:w-11/12 p-4">
+      className="max-w-md w-full bg-gray-500 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden xs:w-11/12"
+    >
       <div className="p-8">
         <h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text'>
           Welcome Back

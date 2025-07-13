@@ -6,14 +6,21 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const router = useRouter();
 
-  const login = () => setIsAuthenticated(true);
-  const logout = () => setIsAuthenticated(false);
+  const login = (loggedUser) => {
+    setUser(loggedUser);
+    setIsAuthenticated(true);
+  }
+  const logout = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+  }
   const signup = () => router.push('/login');
 
   return (
-    <UserContext.Provider value={{ isAuthenticated, login, logout, signup }}>
+    <UserContext.Provider value={{ isAuthenticated, login, logout, signup, user, setUser }}>
       {children}
     </UserContext.Provider>
   );

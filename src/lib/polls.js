@@ -1,8 +1,5 @@
 // Simple in-memory user store for demonstration
-const users = [
-    { name: 'Mattia Guggi', email: 'mattiahag@gmail.com', password: 'mattiaha2006' }
-];
-const polls = [
+let polls = [
     {
         _id: 1,
         name: 'Best singers/actresses',

@@ -1,6 +1,6 @@
 // Simple in-memory user store for demonstration
 const users = [
-    { name: 'Mattia Guggi', email: 'mattiahag@gmail.com', password: 'mattiaha2006' }
+    { username: 'panda', name: 'Mattia', surname: 'Guggi', email: 'test@gmail.com', password: 'password123' }
 ];
 
 export function authenticateUser(email, password) {
