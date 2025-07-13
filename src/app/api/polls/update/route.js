@@ -4,7 +4,7 @@ export async function POST(request) {
     const { poll } = await request.json();
 
     try {
-        updatePoll(poll);
+        await updatePoll(poll);
 
         return new Response(JSON.stringify({ success: true, message: 'Poll updated successfully' }), {
             status: 200,

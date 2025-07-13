@@ -1,6 +1,6 @@
-import { getPollsFromDB, getPollFromDB, updatePollInDb } from "./db";
+import { getPollsFromDb, getPollFromDb, updatePollInDb } from "./db";
 
-let polls = [
+/* let polls = [
     {
         _id: 1,
         name: 'Best singers/actresses',
@@ -62,9 +62,18 @@ let polls = [
         ],
         image: ['https://cdn.uwufufu.com/selection/1740749490505-Ana%20de%20Armas.jpg']
     }
-];
+]; */
 
-// let polls = await getPollsFromDB();
+export async function getPolls() 
+{
+    try {
+        let polls = await getPollsFromDb();
+        
+        return polls;
+    } catch (err) {
+        console.error('Error getting polls', err);
+    }
+}
 
 export async function updatePoll(newPoll) {
     try {
@@ -77,7 +86,7 @@ export async function updatePoll(newPoll) {
 }
 
 export async function getPoll(id) {
-    const poll = await getPollFromDB(id);
+    const poll = await getPollFromDb({ _id: id});
 
     return poll;
 }

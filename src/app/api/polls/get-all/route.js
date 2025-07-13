@@ -1,12 +1,10 @@
-import { getPoll } from '../../../../lib/polls';
+import { getPolls } from '../../../../lib/polls';
 
 export async function GET(request) {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    const poll = await getPoll(id);
+    const polls = await getPolls();
     
-    if (poll) {
-        return new Response(JSON.stringify({ success: true, poll: poll, message: 'Poll retrieved correctly' }), {
+    if (polls) {
+        return new Response(JSON.stringify({ success: true, polls: polls, message: 'Poll retrieved correctly' }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });

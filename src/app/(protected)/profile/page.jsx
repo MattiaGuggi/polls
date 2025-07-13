@@ -35,17 +35,28 @@ const Profile = () => {
     logout();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('User id: ', user._id);
       const newUser = {
         ...user,
+        _id: user._id,
         username,
         email,
         password,
       };
+
+      const response = await fetch('/api/users/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+      const data = await response.json();
       setUser(newUser);
-      setMessage('Profile updated successfully!');
+      setMessage(data.message);
     } catch (error) {
       console.error("Error updating profile:", error);
     }

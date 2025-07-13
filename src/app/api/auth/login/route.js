@@ -2,7 +2,7 @@ import { authenticateUser } from '../../../../lib/auth';
 
 export async function POST(request) {
     const { email, password } = await request.json();
-    const user = authenticateUser(email, password);
+    const user = await authenticateUser(email, password);
     
     if (user) {
         return new Response(JSON.stringify({ success: true, user }), {

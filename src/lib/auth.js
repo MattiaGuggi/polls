@@ -1,13 +1,14 @@
-import { getUsersFromDB, createUser, getUserFromDb } from './db.js';
-const users = [
-    { username: 'panda', name: 'Mattia', surname: 'Guggi', email: 'test@gmail.com', password: 'password123' }
-];
-// const users = await getUsersFromDB();
+import { createUserInDb, getUserFromDb, updateUserInDb } from './db.js';
 
 export async function authenticateUser(email, password) {
-  return await getUserFromDb({ email, password })  || null;
+  return await getUserFromDb({ email, password });
 }
 
 export async function registerUser(name, email, password) {
-  await createUser({ name, email, password });
+  await createUserInDb({ name, email, password });
 }
+
+export async function updateUser(user) {
+  await updateUserInDb(user);
+};
+

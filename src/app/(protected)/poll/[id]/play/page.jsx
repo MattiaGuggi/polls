@@ -25,7 +25,6 @@ const pollGame = () => {
         try {
             const response = await axios.get(`/api/polls/get`, { params: { id } });
             const data = response.data;
-            console.log(data);
             const shuffled = shuffleArray(data.poll.participants);
 
             setPoll(data.poll);

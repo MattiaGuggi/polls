@@ -16,7 +16,7 @@ const Home = () => {
 
   const createPoll = async () => {
     try {
-      const response = await axios.post(`${API_URL}/create-poll`, { name, participants, img });
+      const response = await axios.post(`/api/polls/create`, { name, participants, img });
       const data = response.data;
       setMessage(data.message);
     } catch (err) {
@@ -26,9 +26,9 @@ const Home = () => {
 
   const getAllPolls = async () => {
     try {
-      const response = await axios.post(`${API_URL}/get-all-polls`);
+      const response = await axios.get(`/api/polls/get-all`);
       const data = response.data;
-      setPolls(data.allPolls);
+      setPolls(data.polls);
     } catch (err) {
       console.error('Error getting all polls', err);
     }
@@ -36,16 +36,7 @@ const Home = () => {
 
   useEffect(() => {
     setPolls([]);
-    // getAllPolls();
-    const test = {
-      _id: 1,
-      name: 'Best singers/actresses',
-      creator: 'panda',
-      participants: [],
-      scoreboard: [],
-      image: 'https://cdn.uwufufu.com/selection/1740749490505-Ana%20de%20Armas.jpg',
-    };
-    setPolls((prev) => [...prev, test]); // For testing
+    getAllPolls();
   }, []);
 
   useEffect(() => {

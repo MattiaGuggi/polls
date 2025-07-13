@@ -26,7 +26,7 @@ export const connectDB = async () => {
 /**
  * Helper function to get every user from MongoDB
  */
-export const getUsersFromDB = async () => {
+export const getUsersFromDb = async () => {
     await connectDB();
     return await User.find({});
 }
@@ -45,7 +45,7 @@ export const getUserFromDb = async (criteria) => {
  *
  * @param {newUser} newUser - User to create in DB
 */
-export const createUser = async (newUser) => {
+export const createUserInDb = async (newUser) => {
     await connectDB();
     const existingUser = await User.find({ email: newUser.email });
     // Check if the user already exists
@@ -61,7 +61,7 @@ export const createUser = async (newUser) => {
  * @param {user} user - the user you need to update
  * @returns {void}
  */
-export const updateUser = async (user) => {
+export const updateUserInDb = async (user) => {
     await connectDB();
     try  {
         await User.findByIdAndUpdate(user._id, { $set: user }, { new: true }); // Update the user and return the updated document
@@ -75,7 +75,7 @@ export const updateUser = async (user) => {
  * @param {user} user - the user you need to delete
  * @returns {void}
  */
-export const deleteUser = async (user) => {
+export const deleteUserFromDb = async (user) => {
     await connectDB();
     try {
         await User.findByIdAndDelete(user._id); // Delete the user by ID
@@ -98,7 +98,7 @@ const Poll = mongoose.model('Poll', pollSchema);
 /**
  * Helper function to get every poll from MongoDB
  */
-export const getPollsFromDB = async () => {
+export const getPollsFromDb = async () => {
     await connectDB();
     return await Poll.find({});
 }
