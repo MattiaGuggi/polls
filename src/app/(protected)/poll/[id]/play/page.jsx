@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { notFound, useParams, useRouter } from 'next/navigation'
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -19,6 +19,19 @@ const pollGame = () => {
     const [currentIndex, setCurrentIndex] = useState(0); // index in participants array
     const [round, setRound] = useState(1);
     const [totRounds, setTotRounds] = useState(1);
+
+    const checkId = async () => {
+        try {
+            const response = await axios.get(`/api/polls/get-all`);
+            const data = response.data;
+            const polls = data.polls || [];
+            const foundPoll = polls.find(p => p?._id == id);
+            if (!foundPoll) return notFound();
+        } catch (err) {
+            console.error("Error fetching poll:", err);
+            return notFound();
+        }
+    }
 
     // Fetch poll and initialize
     const getPoll = async () => {
@@ -45,6 +58,7 @@ const pollGame = () => {
             setTotRounds(Math.ceil(data.poll.participants.length / 2));
         } catch (err) {
             console.error("Error fetching poll:", err);
+            return notFound();
         }
     };
 
@@ -161,8 +175,8 @@ const pollGame = () => {
     };
 
     useEffect(() => {
+        checkId();
         getPoll();
-        // eslint-disable-next-line
     }, []);
 
     return (

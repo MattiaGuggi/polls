@@ -39,7 +39,9 @@ const Home = () => {
         whileTap={{ scale: 0.98 }}
         type="submit"
         onClick={() => router.push(`/poll`)}
-        >View all polls</motion.button>
+        >
+          View all polls
+        </motion.button>
       </div>
     </ProtectedLayout>
   );

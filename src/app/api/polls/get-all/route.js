@@ -1,6 +1,6 @@
 import { getPolls } from '../../../../lib/polls';
 
-export async function GET(request) {
+export async function GET() {
     const polls = await getPolls();
     
     if (polls) {
