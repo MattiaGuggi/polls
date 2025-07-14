@@ -4,8 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '../../context/UserContext';
 import ProfileModal from '../../components/ProfileModal';
 import Loading from '../../../app/loading';
+import Poll from '../../components/Poll';
 
 const Profile = () => {
+  const [polls, setPolls] = useState([]);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,28 +16,6 @@ const Profile = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, logout, setUser, user } = useUser();
   const router = useRouter();
-
-  useEffect(() => {
-    setIsMounted(true); // Ensure client-side mount
-  }, []);
-
-  useEffect(() => {
-    if (isMounted && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isMounted, isAuthenticated, router]);
-
-  useEffect(() => {
-    if (user) {
-      setUsername(user.username || '');
-      setEmail(user.email || '');
-      setPassword(user.password || '');
-    }
-  }, [user]);
-
-  const handleLogoutBtn = () => {
-    logout();
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,6 +44,40 @@ const Profile = () => {
     }
   };
 
+  const getPolls = async () => {
+    try {
+      const response = await fetch(`/api/polls/get-all`);
+
+      if (!response.ok) throw new Error('Failed to fetch polls');
+
+      const data = await response.json();
+      const userPolls = data.polls.filter(poll => poll.creator === user._id);
+
+      setPolls(userPolls);
+    } catch (error) {
+      console.error('Error fetching polls:', error);
+    }
+  };
+
+  useEffect(() => {
+    setIsMounted(true); // Ensure client-side mount
+    getPolls();
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isMounted, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username || '');
+      setEmail(user.email || '');
+      setPassword(user.password || '');
+    }
+  }, [user]);
+
   if (!isMounted || !isAuthenticated) {
     return (
       <Loading />
@@ -73,23 +87,33 @@ const Profile = () => {
   return (
     <>
       {isOpen ? (
-        <ProfileModal message={message} username={username} email={email} password={password} handleSubmit={handleSubmit}
+        <ProfileModal message={message} setMessage={setMessage} username={username} email={email} password={password} handleSubmit={handleSubmit}
           setUsername={setUsername} setEmail={setEmail} setPassword={setPassword} setIsOpen={setIsOpen}
         />
       ) : (
         <>
-          <div className='flex flex-col py-4 px-9'>
+          <div className='flex flex-col py-4 px-9 items-center'>
             <h1 className='text-2xl font-bold text-white'>{username}</h1>
+            {polls.length > 0 && (
+              <>
+                <h1 className='text-xl font-bold text-white my-10'>Your created polls</h1>
+                <div className='grid grid-cols-4 gap-4 my-5'>
+                  {polls.map((poll, idx) => (
+                    <Poll key={idx} poll={poll} mode='edit' />
+                  ))}
+                </div>
+              </>
+            )}
             <button
               className='cursor-pointer mt-5 py-3 px-4 bg-gradient-to-r from-indigo-700 to-indigo-950 text-white font-bold rounded-lg shadow-lg
-              hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition duration-200'
+              hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition duration-200 w-1/5'
               onClick={() => setIsOpen(prev => !prev)}
             >
               Modify
             </button>
           </div>
           <button
-              onClick={handleLogoutBtn}
+              onClick={logout}
               className="cursor-pointer mt-6 px-6 py-2 bg-red-600 hover:bg-red-800 text-white font-semibold rounded-lg shadow-md transition-all duration-200
               hover:scale-110"
           >

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Poll from '../../components/Poll';
 import axios from 'axios';
 import { useUser } from '../../context/UserContext';
+import Toast from '../../components/Toast';
 
 const pollView = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,14 +43,6 @@ const pollView = () => {
     getAllPolls();
   }, []);
 
-  useEffect(() => {
-    if (!message) return;
-    const timer = setTimeout(() => {
-      setMessage(null);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [message]);
-
   return (
     <>
       <div className='w-full h-full'>
@@ -58,14 +51,16 @@ const pollView = () => {
           {isOpen && <Modal createPoll={createPoll} setIsOpen={setIsOpen} isOpen={isOpen}
             setImg={setImg} setName={setName} setParticipants={setParticipants} img={img} name={name} participants={participants} />}
           {message && (
-            <div className='bg-green-300 px-5 py-2 rounded-xl m-5'>
-              <p className='text-green-600'>{message}</p>
-            </div>
+            <Toast
+              message={message}
+              type={'success'}
+              onClose={() => setMessage('')}
+            />
           )}
         </div>
         <div className='w-full grid grid-cols-4 sm:grid-cols-2 md:grid-cols-3 gap-6 p-10 justify-items-center'>
           {polls.map((poll, idx) => (
-            <Poll key={idx} poll={poll} />
+            <Poll key={idx} poll={poll} moode='play' />
           ))}
         </div>
       </div>
