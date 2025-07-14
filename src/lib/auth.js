@@ -12,3 +12,6 @@ export async function updateUser(user) {
   await updateUserInDb(user);
 };
 
+export async function getUser(id) {
+  return await getUserFromDb({ _id: id });
+};

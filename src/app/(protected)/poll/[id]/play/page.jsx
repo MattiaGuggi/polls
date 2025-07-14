@@ -38,6 +38,7 @@ const pollGame = () => {
         try {
             const response = await axios.get(`/api/polls/get`, { params: { id } });
             const data = response.data;
+             console.log("Poll fetched:", data.poll);
             
             // Ensure every participant has a numeric rating
             const normalized = data.poll.participants.map((p) => ({
@@ -74,37 +75,36 @@ const pollGame = () => {
 
     // Vote on a player
     const vote = (winner) => {
-        const latestWinner = allParticipants.find(p => p.name === winner.name);
-        const updatedNextRound = [...nextRound, latestWinner];
-        const loser = allParticipants.find(p => 
-            p.name === (winner.name === currentPair[0]?.name 
-                ? currentPair[1]?.name 
-                : currentPair[0]?.name)
-        );
+        // Find the winner and loser in the current pair
+        const winnerObj = participants[currentIndex]?.name === winner.name ? participants[currentIndex] : participants[currentIndex + 1];
+        const loserObj = participants[currentIndex]?.name === winner.name ? participants[currentIndex + 1] : participants[currentIndex];
 
-        const [updatedWinner, updatedLoser] = updateElo(latestWinner, loser);
-        setNextRound([...nextRound, updatedNextRound]);
-        setRound((prev) => prev + 1);
+        // Update ELO ratings
+        updateElo(winnerObj, loserObj);
 
-        const nextIndex = currentIndex + 2;
-        if (nextIndex >= participants.length) {
-            // End of current round
-            if (updatedNextRound.length === 1) {
-                // Only one participant left → final winner
-                setUpWin(updatedNextRound);
+        // Add winner to next round
+        const newNextRound = [...nextRound, winnerObj];
+
+        // Check if this was the last pair in the current round
+        if (currentIndex + 2 >= participants.length) {
+            // If only one winner remains, game is over
+            if (newNextRound.length === 1) {
+                setUpWin(newNextRound);
             } else {
-                // Prepare for next round
-                setParticipants(updatedNextRound);
+                // Start next round with winners
+                setParticipants(newNextRound);
                 setCurrentIndex(0);
                 setNextRound([]);
-                setCurrentPair(updatedNextRound.slice(0, 2));
+                setCurrentPair(newNextRound.slice(0, 2));
                 setRound(1);
-                setTotRounds((prev) => Math.ceil(prev / 2));
+                setTotRounds(Math.ceil(newNextRound.length / 2));
             }
         } else {
-            // Move to next pair in current round
-            setCurrentIndex(nextIndex);
-            setCurrentPair(participants.slice(nextIndex, nextIndex + 2));
+            // Continue to next pair in current round
+            setNextRound(newNextRound);
+            setCurrentIndex(currentIndex + 2);
+            setCurrentPair(participants.slice(currentIndex + 2, currentIndex + 4));
+            setRound(round + 1);
         }
     };
 
@@ -136,8 +136,6 @@ const pollGame = () => {
                 return p;
             })
         );
-
-        return [updatedWinner, updatedLoser]; // RETURN THEM
     };
 
     const setUpWin = async (updatedNextRound) => {
@@ -174,9 +172,13 @@ const pollGame = () => {
         router.push(`/poll/${id}`);
     };
 
+    const initializeGame = async () => {
+        await checkId();
+        await getPoll();
+    };
+
     useEffect(() => {
-        checkId();
-        getPoll();
+        initializeGame();
     }, []);
 
     return (

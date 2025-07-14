@@ -9,14 +9,23 @@ const userSchema = new mongoose.Schema({
     pfp: { type: String, default: 'https://www.starksfamilyfh.com/image/9/original' },
 });
 
-export const User = mongoose.model('User', userSchema);
+export const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+const participantSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  image: { type: String, default: '' },
+  rating: { type: Number, default: 1500 }, // This will map to MongoDB Int32
+}, { _id: false }); // Disable _id for subdocs if you don't want auto-generated _id fields
 
 const pollSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    creator: { type: String, required: true },
-    participants: { type: [], required: true },
-    scoreboard: { type: [], required: true },
-    image: { type: String, default: 'https://cdn.uwufufu.com/selection/1740749490505-Ana%20de%20Armas.jpg' }
+  name: { type: String, required: true },
+  creator: { type: mongoose.Types.ObjectId, ref: 'User', required: true }, // adjust ref if needed
+  participants: { type: [participantSchema], required: true },
+  scoreboard: { type: [participantSchema], required: true },
+  image: {
+    type: String,
+    default: 'https://cdn.uwufufu.com/selection/1740749490505-Ana%20de%20Armas.jpg'
+  }
 });
 
-export const Poll = mongoose.model('Poll', pollSchema);
+export const Poll = mongoose.models.Poll || mongoose.model('Poll', pollSchema);

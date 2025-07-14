@@ -4,6 +4,7 @@ import Modal from '../../components/Modal';
 import { useEffect, useState } from 'react';
 import Poll from '../../components/Poll';
 import axios from 'axios';
+import { useUser } from '../../context/UserContext';
 
 const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,11 +13,11 @@ const Home = () => {
   const [name, setName] = useState('');
   const [participants, setParticipants] = useState([]);
   const [img, setImg] = useState('');
-  const API_URL = 'http://localhost:8080';
+  const { user } = useUser();
 
   const createPoll = async () => {
     try {
-      const response = await axios.post(`/api/polls/create`, { name, participants, img });
+      const response = await axios.post(`/api/polls/create`, { name, participants, img, creator: user._id });
       const data = response.data;
       setMessage(data.message);
     } catch (err) {
