@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../../context/UserContext';
 import ProfileModal from '../../components/ProfileModal';
+import Loading from '../../../app/loading';
 
 const Profile = () => {
   const [username, setUsername] = useState('');
@@ -65,9 +66,7 @@ const Profile = () => {
 
   if (!isMounted || !isAuthenticated) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-        <p>Redirecting to login...</p>
-      </div>
+      <Loading />
     );
   }
 

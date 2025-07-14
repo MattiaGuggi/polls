@@ -6,7 +6,7 @@ import Poll from '../../components/Poll';
 import axios from 'axios';
 import { useUser } from '../../context/UserContext';
 
-const Home = () => {
+const pollView = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState(null);
   const [polls, setPolls] = useState([]);
@@ -71,4 +71,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default pollView;
