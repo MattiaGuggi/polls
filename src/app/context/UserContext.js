@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const UserContext = createContext();
 
@@ -9,14 +9,35 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const router = useRouter();
 
+  // On mount, check localStorage for auth state
+  useEffect(() => {
+    const storedAuth = localStorage.getItem('isAuthenticated');
+    const storedUser = localStorage.getItem('user');
+    if (storedAuth === 'true' && storedUser) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(storedUser));
+    } else {
+      setIsAuthenticated(false);
+      setUser(null);
+      if (router && router.push) router.push('/login');
+    }
+  }, [router]);
+
   const login = (loggedUser) => {
     setUser(loggedUser);
     setIsAuthenticated(true);
-  }
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('user', JSON.stringify(loggedUser));
+  };
+
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-  }
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('user');
+    if (router && router.push) router.push('/login');
+  };
+
   const signup = () => router.push('/login');
 
   return (

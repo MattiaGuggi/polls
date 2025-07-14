@@ -16,10 +16,12 @@ const pollView = () => {
   const { user } = useUser();
 
   const createPoll = async () => {
+    console.log('Creating poll with:', { name, participants, img, creator: user?._id });
     try {
       const response = await axios.post(`/api/polls/create`, { name, participants, img, creator: user._id });
       const data = response.data;
       setMessage(data.message);
+      setIsOpen(false);
     } catch (err) {
       console.error('Error creating poll: ', err);
     }
@@ -53,11 +55,11 @@ const pollView = () => {
       <div className='w-full h-full'>
         <div className='flex flex-col items-center justify-center mt-20'>
           <Plus className='cursor-pointer' onClick={() => setIsOpen(true)} />
-          {isOpen && <Modal createPoll={createPoll} open={() => setIsOpen(false)} isOpen={isOpen}
+          {isOpen && <Modal createPoll={createPoll} setIsOpen={setIsOpen} isOpen={isOpen}
             setImg={setImg} setName={setName} setParticipants={setParticipants} img={img} name={name} participants={participants} />}
           {message && (
-            <div className='bg-green-500 px-5 py-2 rounded-xl m-5'>
-              <p className='text-green-800'>{message}</p>
+            <div className='bg-green-300 px-5 py-2 rounded-xl m-5'>
+              <p className='text-green-600'>{message}</p>
             </div>
           )}
         </div>

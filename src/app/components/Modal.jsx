@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 
-const Modal = ({ createPoll, open, isOpen, setName, setImg, setParticipants, name, img, participants }) => {
+const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants, name, img, participants }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [currentParticipantName, setCurrentParticipantName] = useState('');
   const [currentParticipantImg, setCurrentParticipantImg] = useState('');
@@ -97,11 +97,11 @@ const Modal = ({ createPoll, open, isOpen, setName, setImg, setParticipants, nam
             className="border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl text-lg font-medium w-24 h-11 shadow-custom
             transition-all duration-200 hover:scale-110"
           >
-            Save
+            Create
           </button>
 
           <button
-            onClick={open}
+            onClick={() => setIsOpen(false)}
             className="cursor-pointer w-24 h-11 bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text font-bold rounded-lg shadow-lg
             hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition duration-200"
           >
