@@ -53,7 +53,8 @@ const Home = () => {
       <div className='w-full h-full'>
         <div className='flex flex-col items-center justify-center mt-20'>
           <Plus className='cursor-pointer' onClick={() => setIsOpen(true)} />
-          {isOpen && <Modal createPoll={createPoll} open={() => setIsOpen(false)} />}
+          {isOpen && <Modal createPoll={createPoll} open={() => setIsOpen(false)} isOpen={isOpen}
+            setImg={setImg} setName={setName} setParticipants={setParticipants} img={img} name={name} participants={participants} />}
           {message && (
             <div className='bg-green-500 px-5 py-2 rounded-xl m-5'>
               <p className='text-green-800'>{message}</p>
