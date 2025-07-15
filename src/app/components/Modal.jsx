@@ -1,10 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import gsap from 'gsap';
 import { Plus } from 'lucide-react';
+import { useGSAP } from '@gsap/react';
 
 const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants, name, img, participants }) => {
+  const containerRef = useRef(null);
   const [isAdding, setIsAdding] = useState(false);
   const [currentParticipantName, setCurrentParticipantName] = useState('');
   const [currentParticipantImg, setCurrentParticipantImg] = useState('');
@@ -28,16 +30,27 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants
     };
   }, [isOpen]);
 
+  // Opening animation
+  useGSAP(() => {
+    gsap.fromTo(
+      containerRef.current,
+      { opacity: 0, y: 100 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+      }
+    );
+  }, []);
+
   if (typeof window === 'undefined' || !isOpen) return null;
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 h-screen w-screen bg-black/70 flex items-center justify-center z-[9999]">
       <div
+        ref={containerRef}
         className="bg-white py-10 px-5 rounded-xl shadow-xl w-full max-w-lg mx-4"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.8, opacity: 0 }}
-        transition={{ duration: 0.2 }}
       >
         <div className="w-full">
           <h2 className="my-3 font-semibold text-xl">Create a poll</h2>
@@ -45,7 +58,17 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants
 
         <div className="content flex flex-col my-4 p-2">
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder='Poll name' className='border rounded-lg px-5 py-3 my-5 cursor-pointer' />
-          <input type="file" value={img} onChange={(e) => setImg(e.target.value)} className='border rounded-lg px-5 py-3 my-5 cursor-pointer' />
+          <input type="file" accept="image/*" className='border rounded-lg px-5 py-3 my-5 cursor-pointer'
+          onChange={e => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setImg(reader.result);
+              };
+              reader.readAsDataURL(file);
+            }
+          }} />
           <div className='flex items-center justify-center'>
             <button
               className='border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl flex items-center justify-center
@@ -71,7 +94,17 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants
             <div className='absolute inset-0 flex items-center justify-center bg-black/50'>
               <div className='absolute flex flex-col gap-4 px-3 py-5 bg-white shadow-custom rounded-xl'>
                 <input type="text" placeholder='Participant name' value={currentParticipantName} onChange={(e) => setCurrentParticipantName(e.target.value)} className='border rounded-lg px-5 py-3 my-5 cursor-pointer' />
-                <input type="file" placeholder='Participant image' value={currentParticipantImg} onChange={(e) => setCurrentParticipantImg(e.target.value)} className='border rounded-lg px-5 py-3 my-5 cursor-pointer' />
+                <input type="file" accept="image/*" className='border rounded-lg px-5 py-3 my-5 cursor-pointer'
+                onChange={e => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setCurrentParticipantImg(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }} />
                 <div className='flex items-center justify-center gap-10'>
                   <button className='border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl text-lg font-medium w-24 h-11 shadow-custom
                     hover:scale-110 transition-all duration-200' onClick={handleAddParticipant}

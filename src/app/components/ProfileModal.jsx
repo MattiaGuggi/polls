@@ -40,7 +40,7 @@ const ProfileModal = ({ message, setMessage, username, email, password, handleSu
   };
 
   return (
-    <div ref={containerRef} className='w-1/4 mt-28 min-h-full bg-white px-8 py-16 rounded-3xl shadow-lg flex flex-col items-center shadow-custom'>
+    <div ref={containerRef} className='w-sm bg-white px-16 py-16 rounded-3xl shadow-lg flex flex-col items-center shadow-custom'>
       <h1 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text'>Your Profile</h1>
       {message && (
         <Toast

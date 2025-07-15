@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ReactDOM from 'react-dom';
 import { useUser } from '../../context/UserContext';
 import ProfileModal from '../../components/ProfileModal';
 import Loading from '../../../app/loading';
@@ -88,40 +89,48 @@ const Profile = () => {
   return (
     <>
       {isOpen ? (
-        <ProfileModal message={message} setMessage={setMessage} username={username} email={email} password={password} handleSubmit={handleSubmit}
-          setUsername={setUsername} setEmail={setEmail} setPassword={setPassword} setIsOpen={setIsOpen}
-        />
+        ReactDOM.createPortal(
+          <div className="fixed inset-0 h-screen w-screen bg-black/70 flex items-center justify-center z-[9999]">
+            <ProfileModal message={message} setMessage={setMessage} username={username} email={email} password={password} handleSubmit={handleSubmit}
+              setUsername={setUsername} setEmail={setEmail} setPassword={setPassword} setIsOpen={setIsOpen} />
+          </div>, document.body
+        )
       ) : (
         <>
-          <div className='flex flex-col py-4 px-9 items-center'>
-            <h1 className='text-2xl font-bold text-white'>{username}</h1>
-            { isLoading ? (
-              <Loading />
-            ) : (
-              <>
-                <h1 className='text-xl font-bold text-white my-10'>Your created polls</h1>
-                <div className='grid grid-cols-4 gap-4 my-5'>
-                  {polls.map((poll, idx) => (
-                    <Poll key={idx} poll={poll} mode='edit' />
-                  ))}
-                </div>
-              </>
-            )}
-            <button
-              className='cursor-pointer mt-5 py-3 px-4 bg-gradient-to-r from-indigo-700 to-indigo-950 text-white font-bold rounded-lg shadow-lg
-              hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition duration-200 w-1/5'
-              onClick={() => setIsOpen(prev => !prev)}
-            >
-              Modify
-            </button>
+          <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden py-10">
+            {/* Decorative blurred background shapes */}
+            <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-700 opacity-30 rounded-full blur-3xl -z-10 animate-pulse" style={{ filter: 'blur(120px)' }} />
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 opacity-20 rounded-full blur-3xl -z-10 animate-pulse delay-200" style={{ filter: 'blur(120px)' }} />
+            <div className="relative z-10 flex flex-col items-center w-full max-w-2xl mx-auto p-8">
+              <h1 className='text-3xl font-extrabold text-white mb-4 drop-shadow-lg tracking-tight'>{username}</h1>
+              { isLoading ? (
+                <Loading />
+              ) : (
+                <>
+                  <h1 className='text-xl font-bold text-white my-10'>Your created polls</h1>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 my-5'>
+                    {polls.map((poll, idx) => (
+                      <Poll key={idx} poll={poll} mode='edit' />
+                    ))}
+                  </div>
+                </>
+              )}
+              <button
+                className='cursor-pointer mt-5 py-3 px-4 bg-gradient-to-r from-indigo-700 to-indigo-950 text-white font-bold rounded-lg shadow-lg
+                hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition duration-200 w-full max-w-xs'
+                onClick={() => setIsOpen(prev => !prev)}
+              >
+                Modify
+              </button>
+              <button
+                  onClick={logout}
+                  className="cursor-pointer mt-6 px-6 py-2 bg-red-600 hover:bg-red-800 text-white font-semibold rounded-lg shadow-md transition-all duration-200
+                  hover:scale-110 w-full max-w-xs"
+              >
+                  Logout
+              </button>
+            </div>
           </div>
-          <button
-              onClick={logout}
-              className="cursor-pointer mt-6 px-6 py-2 bg-red-600 hover:bg-red-800 text-white font-semibold rounded-lg shadow-md transition-all duration-200
-              hover:scale-110"
-          >
-              Logout
-          </button>
         </>
       )}
     </>

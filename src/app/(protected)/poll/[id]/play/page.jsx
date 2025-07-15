@@ -38,7 +38,6 @@ const pollGame = () => {
         try {
             const response = await axios.get(`/api/polls/get`, { params: { id } });
             const data = response.data;
-             console.log("Poll fetched:", data.poll);
             
             // Ensure every participant has a numeric rating
             const normalized = data.poll.participants.map((p) => ({
@@ -182,64 +181,52 @@ const pollGame = () => {
     }, []);
 
     return (
-        <div className="text-center flex flex-col w-full items-center mt-10">
-            <MoveLeft className='cursor-pointer duration-400 transition-all hover:scale-125' onClick={goBack} />
-            <h2 className="text-2xl font-bold mb-4">🎮 Playing Poll: {id}</h2>
-
-            {finalWinner ? (
-                <div className="text-center mt-10">
-                    <h2
-                        initial={{ y: -50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                        className="text-3xl font-bold text-green-600 mb-5"
-                    >
-                        🏆 Winner: {finalWinner.name}
-                    </h2>
-                    <img
-                        src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(finalWinner.image)}`}
-                        alt={finalWinner.name}
-                        className="rounded-xl object-cover shadow-custom"
-                    />
-                    <div className='flex flex-col items-center justify-center rounded-xl bg-purple-950 mt-6 py-4 px-6'>
-                        {allParticipants.map((person, idx) => (
-                            <h3 key={idx} className="text-lg font-bold my-3">
-                                {person.name} ({Math.round(person.rating)})
-                            </h3>
-                        ))}
+        <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden py-10">
+            {/* Decorative blurred background shapes */}
+            <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-700 opacity-30 rounded-full blur-3xl -z-10 animate-pulse" style={{ filter: 'blur(120px)' }} />
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 opacity-20 rounded-full blur-3xl -z-10 animate-pulse delay-200" style={{ filter: 'blur(120px)' }} />
+            <div className="relative z-10 flex flex-col items-center w-full max-w-2xl mx-auto p-8">
+                <button onClick={goBack} className="cursor-pointer self-start mb-4 text-white rounded-full p-2 hover:scale-110 transition duration-200"><MoveLeft /></button>
+                <h2 className="text-3xl font-extrabold text-white mb-6 drop-shadow-lg tracking-tight">🎮 Playing Poll: <span className="text-indigo-300">{id}</span></h2>
+                {finalWinner ? (
+                    <div className="text-center mt-10">
+                        <h2 className="text-3xl font-bold text-green-400 mb-5 drop-shadow-lg">🏆 Winner: {finalWinner.name}</h2>
+                        <img
+                            src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(finalWinner.image)}`}
+                            alt={finalWinner.name}
+                            className="rounded-xl object-cover shadow-lg mx-auto w-64 h-64 mb-6 bg-white"
+                        />
+                        <div className='flex flex-col items-center justify-center rounded-xl bg-indigo-800/80 mt-6 py-4 px-6 shadow-inner'>
+                            <h3 className="text-lg font-bold text-indigo-200 mb-2">Final Standings</h3>
+                            {allParticipants.map((person, idx) => (
+                                <h3 key={idx} className="text-base font-semibold my-2 text-white">
+                                    {person.name} <span className="text-indigo-300">({Math.round(person.rating)})</span>
+                                </h3>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            ) : (
-                <>
-                    <h3 className="text-lg font-semibold mb-4">Round {round} of {totRounds}</h3>
-                    <div
-                        key={currentPair.map((p) => p).join('-')}
-                        className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-10 p-10 justify-items-center w-full max-w-4xl"
-                        initial={{ opacity: 0, y: 40 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -40 }}
-                        transition={{ duration: 0.4 }}
-                    >
-                        {currentPair.map((person, idx) => (
-                            <div key={idx} className='flex flex-col w-full h-full transition-all duration-400 hover:scale-105'>
-                                <h3 className="text-lg font-bold mb-2">{person.name}</h3>
-                                <div
-                                    key={idx}
-                                    onClick={() => vote(person)}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="cursor-pointer w-full flex flex-col items-center justify-center border-gray-300 rounded-xl shadow-custom"
-                                >
+                ) : (
+                    <>
+                        <h3 className="text-lg font-semibold mb-4 text-indigo-200">Round {round} of {totRounds}</h3>
+                        <div
+                            key={currentPair.map((p) => p).join('-')}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-10 p-6 justify-items-center w-full"
+                        >
+                            {currentPair.map((person, idx) => (
+                                <div key={idx} className='flex flex-col w-full h-full transition-all duration-400 hover:scale-105 items-center'>
+                                    <h3 className="text-lg font-bold mb-2 text-white">{person.name}</h3>
                                     <img
                                         src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(person.image)}`}
                                         alt={person.name}
-                                        className="rounded-xl object-cover shadow-custom"
+                                        className="rounded-xl object-cover shadow-lg w-56 h-56 bg-white border-indigo-700 cursor-pointer"
+                                        onClick={() => vote(person)}
                                     />
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </>
-            )}
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 };
