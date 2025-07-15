@@ -14,13 +14,13 @@ const Profile = () => {
   const [message, setMessage] = useState('');
   const [isMounted, setIsMounted] = useState(false); // <-- Client-side guard
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated, logout, setUser, user } = useUser();
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('User id: ', user._id);
       const newUser = {
         ...user,
         _id: user._id,
@@ -54,6 +54,7 @@ const Profile = () => {
       const userPolls = data.polls.filter(poll => poll.creator === user._id);
 
       setPolls(userPolls);
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching polls:', error);
     }
@@ -94,7 +95,9 @@ const Profile = () => {
         <>
           <div className='flex flex-col py-4 px-9 items-center'>
             <h1 className='text-2xl font-bold text-white'>{username}</h1>
-            {polls.length > 0 && (
+            { isLoading ? (
+              <Loading />
+            ) : (
               <>
                 <h1 className='text-xl font-bold text-white my-10'>Your created polls</h1>
                 <div className='grid grid-cols-4 gap-4 my-5'>

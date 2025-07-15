@@ -3,7 +3,7 @@ import React from 'react'
 import { notFound, useParams, useRouter } from 'next/navigation'
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import gsap from 'gsap';
 import { MoveLeft } from 'lucide-react';
 
 const pollGame = () => {
@@ -188,14 +188,14 @@ const pollGame = () => {
 
             {finalWinner ? (
                 <div className="text-center mt-10">
-                    <motion.h2
+                    <h2
                         initial={{ y: -50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.5 }}
                         className="text-3xl font-bold text-green-600 mb-5"
                     >
                         🏆 Winner: {finalWinner.name}
-                    </motion.h2>
+                    </h2>
                     <img
                         src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(finalWinner.image)}`}
                         alt={finalWinner.name}
@@ -212,7 +212,7 @@ const pollGame = () => {
             ) : (
                 <>
                     <h3 className="text-lg font-semibold mb-4">Round {round} of {totRounds}</h3>
-                    <motion.div
+                    <div
                         key={currentPair.map((p) => p).join('-')}
                         className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-10 p-10 justify-items-center w-full max-w-4xl"
                         initial={{ opacity: 0, y: 40 }}
@@ -223,7 +223,7 @@ const pollGame = () => {
                         {currentPair.map((person, idx) => (
                             <div key={idx} className='flex flex-col w-full h-full transition-all duration-400 hover:scale-105'>
                                 <h3 className="text-lg font-bold mb-2">{person.name}</h3>
-                                <motion.div
+                                <div
                                     key={idx}
                                     onClick={() => vote(person)}
                                     whileTap={{ scale: 0.95 }}
@@ -234,10 +234,10 @@ const pollGame = () => {
                                         alt={person.name}
                                         className="rounded-xl object-cover shadow-custom"
                                     />
-                                </motion.div>
+                                </div>
                             </div>
                         ))}
-                    </motion.div>
+                    </div>
                 </>
             )}
         </div>

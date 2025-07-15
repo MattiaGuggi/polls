@@ -1,13 +1,15 @@
 'use client'
-import React from 'react'
+import React, { useRef } from 'react'
 import { validateEmail } from '../../lib/utils';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../context/UserContext';
-import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 
 const login = () => {
+  const containerRef = useRef(null);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
@@ -44,13 +46,21 @@ const login = () => {
     if (isAuthenticated) router.push('/');
   }, [isAuthenticated]);
 
+  useGSAP(() => {
+    gsap.fromTo(
+      containerRef.current,
+      { opacity: 0, y: 100 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+      }
+    );
+  }, []);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-gray-500 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden xs:w-11/12"
-    >
+    <div ref={containerRef} className="max-w-md w-full bg-gray-500 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden xs:w-11/12">
       <div className="p-8">
         <h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text'>
           Welcome Back
@@ -95,14 +105,12 @@ const login = () => {
               Forgot password?
             </div>
           </div>
-          <motion.button
+          <button
             className="cursor-pointer mt-5 w-full py-3 px-4 bg-gradient-to-r from-indigo-700 to-indigo-950 text-white font-bold rounded-lg shadow-lg hover:from-indigo-800 hover:to-indigo-950 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             type="submit"
           >
             Login
-          </motion.button>
+          </button>
         </form>
       </div>
       <div className="px-8 py-4 bg-gray-600 bg-opacity-50 flex justify-center">
@@ -113,7 +121,7 @@ const login = () => {
           </button>
         </p>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

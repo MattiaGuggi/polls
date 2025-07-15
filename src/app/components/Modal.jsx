@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { motion } from 'framer-motion';
+import gsap from 'gsap';
 import { Plus } from 'lucide-react';
 
 const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants, name, img, participants }) => {
@@ -32,7 +32,7 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 h-screen w-screen bg-black/70 flex items-center justify-center z-[9999]">
-      <motion.div
+      <div
         className="bg-white py-10 px-5 rounded-xl shadow-xl w-full max-w-lg mx-4"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -108,7 +108,7 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setName, setImg, setParticipants
             x
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>,
     document.body
   );

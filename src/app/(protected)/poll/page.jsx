@@ -6,9 +6,11 @@ import Poll from '../../components/Poll';
 import axios from 'axios';
 import { useUser } from '../../context/UserContext';
 import Toast from '../../components/Toast';
+import Loading from '../../loading';
 
 const pollView = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const [polls, setPolls] = useState([]);
   const [name, setName] = useState('');
@@ -33,6 +35,7 @@ const pollView = () => {
       const response = await axios.get(`/api/polls/get-all`);
       const data = response.data;
       setPolls(data.polls);
+      setIsLoading(false);
     } catch (err) {
       console.error('Error getting all polls', err);
     }
@@ -58,11 +61,15 @@ const pollView = () => {
             />
           )}
         </div>
-        <div className='w-full grid grid-cols-4 sm:grid-cols-2 md:grid-cols-3 gap-6 p-10 justify-items-center'>
-          {polls.map((poll, idx) => (
-            <Poll key={idx} poll={poll} moode='play' />
-          ))}
-        </div>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <div className='w-full grid grid-cols-4 sm:grid-cols-2 md:grid-cols-3 gap-6 p-10 justify-items-center'>
+            {polls.map((poll, idx) => (
+              <Poll key={idx} poll={poll} moode='play' />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

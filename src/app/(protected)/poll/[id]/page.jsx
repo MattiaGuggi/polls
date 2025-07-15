@@ -30,7 +30,7 @@ export default async function pollPage ({ params }) {
       <p className="text-gray-300 mb-6">Object ID: <span className="font-mono text-green-300">{id}</span></p>
       <Link href={`/poll/${id}/play`} className="cursor-pointer mt-5 w-1/6 py-3 px-4 bg-gradient-to-r from-indigo-700 to-indigo-950 text-white font-bold rounded-lg shadow-lg
         hover:from-indigo-800 hover:to-indigo-950 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-offset-2 focus:ring-offset-gray-900
-        transition duration-200"
+        transition duration-200 hover:scale-110"
       >
         Play
       </Link>
