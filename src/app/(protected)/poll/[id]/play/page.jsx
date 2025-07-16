@@ -158,10 +158,7 @@ const pollGame = () => {
                 })),
             };
 
-            const response = await axios.post(`/api/polls/update`, { poll: updatedPoll });
-            const data = response.data;
-
-            console.log(data);
+            await axios.post(`/api/polls/update`, { poll: updatedPoll });
         } catch(err) {
             console.error('Error updating poll', err);
         }
@@ -192,7 +189,7 @@ const pollGame = () => {
                     <div className="text-center mt-10">
                         <h2 className="text-3xl font-bold text-green-400 mb-5 drop-shadow-lg">🏆 Winner: {finalWinner.name}</h2>
                         <img
-                            src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(finalWinner.image)}`}
+                            src={finalWinner.image == '' ? `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(finalWinner.username)}` : finalWinner.image}
                             alt={finalWinner.name}
                             className="rounded-xl object-cover shadow-lg mx-auto w-64 h-64 mb-6 bg-white"
                         />
@@ -216,7 +213,7 @@ const pollGame = () => {
                                 <div key={idx} className='flex flex-col w-full h-full transition-all duration-400 hover:scale-105 items-center'>
                                     <h3 className="text-lg font-bold mb-2 text-white">{person.name}</h3>
                                     <img
-                                        src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(person.image)}`}
+                                        src={person.image == '' ? `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(person.username)}` : person.image}
                                         alt={person.name}
                                         className="rounded-xl object-cover shadow-lg w-56 h-56 bg-white border-indigo-700 cursor-pointer"
                                         onClick={() => vote(person)}

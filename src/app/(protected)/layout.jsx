@@ -1,26 +1,17 @@
 'use client';
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import Loading from "../loading";
 
 const RootLayout = ({ children }) => {
   const pathname = usePathname();
   const containerRef = useRef(null);
   const headerRef = useRef(null);
   const mainRef = useRef(null);
-  const [isReady, setisReady] = useState(false);
-
-  useEffect(() => {
-    setisReady(false);
-    const timeout = setTimeout(() => setisReady(true), 500);
-    return () => clearTimeout(timeout);
-  }, [pathname]);
 
   useGSAP(() => {
-    if (!isReady) return;
     gsap.from([headerRef.current, mainRef.current], {
       opacity: 0,
       y: (i, target) => target === headerRef.current ? 0 : 60,
@@ -37,11 +28,7 @@ const RootLayout = ({ children }) => {
       ease: 'expo.out',
       stagger: 0,
     }, '-=0.3');
-  }, [pathname, isReady]);
-
-  if (!isReady) {
-    return <Loading />
-  }
+  }, [pathname]);
 
   return (
     <div className="min-h-screen w-full flex flex-col relative overflow-hidden" ref={containerRef}>

@@ -1,13 +1,16 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactDOM from 'react-dom';
 import { useUser } from '../../context/UserContext';
 import ProfileModal from '../../components/ProfileModal';
 import Loading from '../../../app/loading';
 import Poll from '../../components/Poll';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 
 const Profile = () => {
+  const pollsContainer = useRef();
   const [polls, setPolls] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [message, setMessage] = useState('');
@@ -70,15 +73,15 @@ const Profile = () => {
     }
   }, [isMounted, isAuthenticated, router]);
 
-useEffect(() => {
-  if (user && user.username && user.email) {
-    setCurrentUser({
-      username: user.username,
-      email: user.email,
-      password: user.password || ''
-    });
-  }
-}, [user]);
+  useEffect(() => {
+    if (user && user.username && user.email) {
+      setCurrentUser({
+        username: user.username,
+        email: user.email,
+        password: user.password || ''
+      });
+    }
+  }, [user]);
 
   if (!isMounted || !isAuthenticated) {
     return (
@@ -106,14 +109,16 @@ useEffect(() => {
               { isLoading ? (
                 <Loading />
               ) : (
-                <>
+                <div ref={pollsContainer}>
                   <h1 className='text-xl font-bold text-white my-10'>Your created polls</h1>
                   <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 my-5'>
                     {polls.map((poll, idx) => (
-                      <Poll key={idx} poll={poll} mode='edit' />
+                      <div className="poll-card" key={idx}>
+                        <Poll poll={poll} mode='edit' />
+                      </div>
                     ))}
                   </div>
-                </>
+                </div>
               )}
               <button
                 className='cursor-pointer mt-5 py-3 px-4 bg-gradient-to-r from-indigo-700 to-indigo-950 text-white font-bold rounded-lg shadow-lg
