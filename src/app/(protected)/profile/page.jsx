@@ -9,9 +9,7 @@ import Poll from '../../components/Poll';
 
 const Profile = () => {
   const [polls, setPolls] = useState([]);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
   const [message, setMessage] = useState('');
   const [isMounted, setIsMounted] = useState(false); // <-- Client-side guard
   const [isOpen, setIsOpen] = useState(false);
@@ -25,9 +23,9 @@ const Profile = () => {
       const newUser = {
         ...user,
         _id: user._id,
-        username,
-        email,
-        password,
+        username: currentUser.username,
+        email: currentUser.email,
+        password: currentUser.password,
       };
 
       const response = await fetch('/api/users/update', {
@@ -72,13 +70,15 @@ const Profile = () => {
     }
   }, [isMounted, isAuthenticated, router]);
 
-  useEffect(() => {
-    if (user) {
-      setUsername(user.username || '');
-      setEmail(user.email || '');
-      setPassword(user.password || '');
-    }
-  }, [user]);
+useEffect(() => {
+  if (user && user.username && user.email) {
+    setCurrentUser({
+      username: user.username,
+      email: user.email,
+      password: user.password || ''
+    });
+  }
+}, [user]);
 
   if (!isMounted || !isAuthenticated) {
     return (
@@ -91,8 +91,8 @@ const Profile = () => {
       {isOpen ? (
         ReactDOM.createPortal(
           <div className="fixed inset-0 h-screen w-screen bg-black/70 flex items-center justify-center z-[9999]">
-            <ProfileModal message={message} setMessage={setMessage} username={username} email={email} password={password} handleSubmit={handleSubmit}
-              setUsername={setUsername} setEmail={setEmail} setPassword={setPassword} setIsOpen={setIsOpen} />
+            <ProfileModal message={message} setMessage={setMessage} currentUser={currentUser} handleSubmit={handleSubmit}
+              setCurrentUser={setCurrentUser} setIsOpen={setIsOpen} />
           </div>, document.body
         )
       ) : (
@@ -102,7 +102,7 @@ const Profile = () => {
             <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-700 opacity-30 rounded-full blur-3xl -z-10 animate-pulse" style={{ filter: 'blur(120px)' }} />
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 opacity-20 rounded-full blur-3xl -z-10 animate-pulse delay-200" style={{ filter: 'blur(120px)' }} />
             <div className="relative z-10 flex flex-col items-center w-full max-w-2xl mx-auto p-8">
-              <h1 className='text-3xl font-extrabold text-white mb-4 drop-shadow-lg tracking-tight'>{username}</h1>
+              <h1 className='text-3xl font-extrabold text-white mb-4 drop-shadow-lg tracking-tight'>{currentUser.username}</h1>
               { isLoading ? (
                 <Loading />
               ) : (

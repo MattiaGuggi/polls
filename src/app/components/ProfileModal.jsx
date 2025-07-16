@@ -4,7 +4,7 @@ import Toast from './Toast';
 import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 
-const ProfileModal = ({ message, setMessage, username, email, password, handleSubmit, setUsername, setEmail, setPassword, setIsOpen }) => {
+const ProfileModal = ({ message, setMessage, currentUser, handleSubmit, setCurrentUser, setIsOpen }) => {
   const containerRef = useRef(null);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -50,14 +50,9 @@ const ProfileModal = ({ message, setMessage, username, email, password, handleSu
         />
       )}
       <ProfileModalWrapper
-        message={message}
-        username={username}
-        email={email}
-        password={password}
+        currentUser={currentUser}
         handleSubmit={handleSubmit}
-        setUsername={setUsername}
-        setEmail={setEmail}
-        setPassword={setPassword}
+        setCurrentUser={setCurrentUser}
         setIsOpen={handleClose}
       />
     </div>

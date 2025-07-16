@@ -11,7 +11,6 @@ const pollEdit = () => {
     const params = useParams();
     const { id } = params;
     const [poll, setPoll] = useState(null);
-    const [name, setName] = useState('');
     const [isLoading, setisLoading] = useState(true);
     const [editParticipants, setEditParticipants] = useState([]);
     const [savingIdx, setSavingIdx] = useState(null);
@@ -23,7 +22,6 @@ const pollEdit = () => {
             setPoll(data.poll);
             setEditParticipants(data.poll.participants.map(p => ({ ...p })));
             setisLoading(false);
-            setName(data.poll.name);
         } catch (err) {
             console.error("Error fetching poll:", err);
             return notFound();
@@ -80,9 +78,12 @@ const pollEdit = () => {
                         <div className='flex flex-col items-center mt-5'>
                             <input
                                 className='text-xl text-white my-10 border rounded-2xl px-10 py-5'
-                                value={name}
-                                onChange={e => setName(e.target.value)}
                                 placeholder='Poll Name'
+                                value={poll.name}
+                                onChange={e => setPoll(prev => ({
+                                    ...prev,
+                                    name: e.target.value
+                                }))}
                             />
                             <img src={poll.image} alt={poll.name} className='w-64 h-64 rounded-lg shadow-lg' />
                             <p className='text-white font-bold text-2xl mt-28'>Participants:</p>

@@ -13,15 +13,20 @@ const pollView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const [polls, setPolls] = useState([]);
-  const [name, setName] = useState('');
-  const [participants, setParticipants] = useState([]);
-  const [img, setImg] = useState('');
+  const [pollData, setPollData] = useState({
+    name: '',
+    participants: [],
+    img: '',
+  });
+
+  const updatePollData = (key, value) => {
+    setPollData(prev => ({ ...prev, [key]: value }));
+  };
   const { user } = useUser();
 
   const createPoll = async () => {
-    console.log('Creating poll with:', { name, participants, img, creator: user?._id });
     try {
-      const response = await axios.post(`/api/polls/create`, { name, participants, img, creator: user._id });
+      const response = await axios.post(`/api/polls/create`, { ...pollData, creator: user._id });
       const data = response.data;
       setMessage(data.message);
       setIsOpen(false);
@@ -66,7 +71,7 @@ const pollView = () => {
             </button>
           </div>
           {isOpen && <Modal createPoll={createPoll} setIsOpen={setIsOpen} isOpen={isOpen}
-            setImg={setImg} setName={setName} setParticipants={setParticipants} img={img} name={name} participants={participants} />}
+            setPollData={updatePollData} pollData={pollData} />}
           {message && (
             <Toast
               message={message}
