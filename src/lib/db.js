@@ -24,12 +24,12 @@ export const getUsersFromDb = async () => {
 /**
  * Finds user in DB based on email/username
  *
- * @param {email} email - The email
+ * @param {criteria} criteria - The criteria
  * @returns {User} User - A user saved in the DB
  */
-export const getUserFromDb = async (email) => {
+export const getUserFromDb = async (criteria) => {
     await connectDB();
-    return await User.findOne({ email });
+    return await User.findOne({ email: criteria.email });
 };
 /**
  * Creates user in DB 
