@@ -6,8 +6,6 @@ import { useUser } from '../../context/UserContext';
 import ProfileModal from '../../components/ProfileModal';
 import Loading from '../../../app/loading';
 import Poll from '../../components/Poll';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
 
 const Profile = () => {
   const pollsContainer = useRef();

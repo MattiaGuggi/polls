@@ -1,7 +1,7 @@
 import { createUserInDb, getUserFromDb, updateUserInDb } from './db.js';
 
-export async function authenticateUser(email, password) {
-  return await getUserFromDb({ email, password });
+export async function authenticateUser(email) {
+  return await getUserFromDb({ email });
 }
 
 export async function registerUser(name, email, password) {

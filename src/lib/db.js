@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { User, Poll } from "./models.js";
+import bcrypt from "bcrypt";
 
 /**
  * Connects to MongoDB
@@ -23,12 +24,12 @@ export const getUsersFromDb = async () => {
 /**
  * Finds user in DB based on email/username
  *
- * @param {criteria} criteria - The criteria(email/username)
+ * @param {email} email - The email
  * @returns {User} User - A user saved in the DB
  */
-export const getUserFromDb = async (criteria) => {
+export const getUserFromDb = async (email) => {
     await connectDB();
-    return await User.findOne(criteria); // Ensure you're passing the correct criteria
+    return await User.findOne({ email });
 };
 /**
  * Creates user in DB 
@@ -42,7 +43,15 @@ export const createUserInDb = async (newUser) => {
     if (existingUser.length > 0) {
         throw new Error('User already exists');
     }
-    const user = new User(newUser);
+    
+    const hashedPassword = await bcrypt.hash(newUser.password, 10);
+
+    const user = new User({ 
+        username, 
+        email, 
+        password: hashedPassword 
+    });
+    
     await user.save();
 };
 /**
