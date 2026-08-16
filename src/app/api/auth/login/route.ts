@@ -1,11 +1,9 @@
-import { authenticateUser } from '../../../../lib/auth';
-import { connectDB } from '../../../../lib/db';
-import { User } from '../../../../lib/models';
+import { getUserFromDb } from '@/lib/db';
 import bcrypt from 'bcrypt';
 
-export async function POST(request) {
+export async function POST(request: Request) {
     const { email, password } = await request.json();
-    const user = await authenticateUser(email);
+    const user = await getUserFromDb({ email });
 
     // Verifica della password in chiaro con l'hash bcrypt presente a DB
     if (user && await bcrypt.compare(password, user.password)) {

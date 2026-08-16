@@ -1,6 +1,7 @@
+import { pollType } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 
-const Poll = ({ poll, mode = 'play' }) => {
+const Poll = ({ poll, mode = 'play' } : { poll: pollType, mode: string }) => {
   const router = useRouter();
 
   const handlePoll = async () => {

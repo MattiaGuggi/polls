@@ -1,6 +1,6 @@
-import { createPoll } from '../../../../lib/polls';
+import { createPoll } from '@/lib/db';
 
-export async function POST(request) {
+export async function POST(request: Request) {
     const poll = await request.json();
 
     try {

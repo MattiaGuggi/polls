@@ -5,34 +5,37 @@ import { usePathname } from "next/navigation";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
-const RootLayout = ({ children }) => {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const containerRef = useRef(null);
-  const headerRef = useRef(null);
-  const mainRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
 
   useGSAP(() => {
-    gsap.from([headerRef.current, mainRef.current], {
+    const tl = gsap.timeline();
+
+    tl.from([headerRef.current, mainRef.current], {
       opacity: 0,
-      y: (i, target) => target === headerRef.current ? 0 : 60,
-      scale: (i, target) => target === mainRef.current ? 0.98 : 1,
+      y: (i, target) => (target === headerRef.current ? 0 : 60),
+      scale: (i, target) => (target === mainRef.current ? 0.98 : 1),
       filter: 'blur(12px)',
       duration: 0.7,
       ease: 'power3.out',
       stagger: 0,
     });
-    gsap.to([headerRef.current, mainRef.current], {
+
+    tl.to([headerRef.current, mainRef.current], {
       filter: 'blur(0px)',
       scale: 1,
       duration: 0.4,
       ease: 'expo.out',
       stagger: 0,
-    }, '-=0.3');
-  }, [pathname]);
+    }, '-=0.3'); // Valid position offset inside a timeline
+  }, { dependencies: [pathname], scope: containerRef });
 
   return (
     <div className="min-h-screen w-full flex flex-col relative overflow-hidden" ref={containerRef}>
-      {/* Decorative blurred background shapes for consistency with home page */}
+      {/* Decorative blurred background shapes */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-700 opacity-30 rounded-full blur-3xl -z-10 animate-pulse" style={{ filter: 'blur(120px)' }} />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 opacity-20 rounded-full blur-3xl -z-10 animate-pulse delay-200" style={{ filter: 'blur(120px)' }} />
       <div className="relative z-10 flex w-full min-h-screen h-full opacity-100">

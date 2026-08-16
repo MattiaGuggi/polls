@@ -1,4 +1,4 @@
-import { updatePoll } from '../../../../lib/polls';
+import { updatePoll } from '@/lib/db';
 
 export async function POST(request) {
     const { poll } = await request.json();

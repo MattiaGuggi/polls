@@ -1,31 +1,30 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { notFound, useParams, useRouter } from 'next/navigation'
 import axios from 'axios';
-import { useEffect, useState } from 'react';
-import gsap from 'gsap';
 import { MoveLeft } from 'lucide-react';
+import { participantType, pollType } from '@/lib/types';
 
 const pollGame = () => {
     const params = useParams();
-    const { id } = params;
+    const id = params?.id as string;
     const router = useRouter();
-    const [poll, setPoll] = useState(null);
-    const [finalWinner, setFinalWinner] = useState(null);
-    const [participants, setParticipants] = useState([]);
-    const [allParticipants, setAllParticipants] = useState([]);
-    const [currentPair, setCurrentPair] = useState([]);
-    const [nextRound, setNextRound] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0); // index in participants array
-    const [round, setRound] = useState(1);
-    const [totRounds, setTotRounds] = useState(1);
+    const [poll, setPoll] = useState<pollType | null>(null);
+    const [finalWinner, setFinalWinner] = useState<participantType | null>(null);
+    const [participants, setParticipants] = useState<participantType[]>([]);
+    const [allParticipants, setAllParticipants] = useState<participantType[]>([]);
+    const [currentPair, setCurrentPair] = useState<participantType[]>([]);
+    const [nextRound, setNextRound] = useState<participantType[]>([]);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [round, setRound] = useState<number>(1);
+    const [totRounds, setTotRounds] = useState<number>(1);
 
     const checkId = async () => {
         try {
             const response = await axios.get(`/api/polls/get-all`);
             const data = response.data;
             const polls = data.polls || [];
-            const foundPoll = polls.find(p => p?._id == id);
+            const foundPoll = polls.find((p: pollType) => p?._id == id);
             if (!foundPoll) return notFound();
         } catch (err) {
             console.error("Error fetching poll:", err);
@@ -40,9 +39,9 @@ const pollGame = () => {
             const data = response.data;
             
             // Ensure every participant has a numeric rating
-            const normalized = data.poll.participants.map((p) => ({
+            const normalized: participantType[] = data.poll.participants.map((p: participantType) => ({
                 ...p,
-                rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating) || 1000,
+                rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating as unknown as string) || 1000,
             }));
 
             const shuffled = shuffleArray(normalized);
@@ -63,7 +62,7 @@ const pollGame = () => {
     };
 
     // Shuffle helper
-    const shuffleArray = (arr) => {
+    const shuffleArray = (arr: participantType[]) => {
         const copy = [...arr];
         for (let i = copy.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -73,24 +72,18 @@ const pollGame = () => {
     };
 
     // Vote on a player
-    const vote = (winner) => {
-        // Find the winner and loser in the current pair
+    const vote = (winner: participantType) => {
         const winnerObj = participants[currentIndex]?.name === winner.name ? participants[currentIndex] : participants[currentIndex + 1];
         const loserObj = participants[currentIndex]?.name === winner.name ? participants[currentIndex + 1] : participants[currentIndex];
 
-        // Update ELO ratings
         updateElo(winnerObj, loserObj);
 
-        // Add winner to next round
         const newNextRound = [...nextRound, winnerObj];
 
-        // Check if this was the last pair in the current round
         if (currentIndex + 2 >= participants.length) {
-            // If only one winner remains, game is over
             if (newNextRound.length === 1) {
                 setUpWin(newNextRound);
             } else {
-                // Start next round with winners
                 setParticipants(newNextRound);
                 setCurrentIndex(0);
                 setNextRound([]);
@@ -99,7 +92,6 @@ const pollGame = () => {
                 setTotRounds(Math.ceil(newNextRound.length / 2));
             }
         } else {
-            // Continue to next pair in current round
             setNextRound(newNextRound);
             setCurrentIndex(currentIndex + 2);
             setCurrentPair(participants.slice(currentIndex + 2, currentIndex + 4));
@@ -107,8 +99,8 @@ const pollGame = () => {
         }
     };
 
-    const updateElo = (winner, loser) => {
-        if (!winner || !loser) return [winner, loser];
+    const updateElo = (winner: participantType, loser: participantType) => {
+        if (!winner || !loser) return;
 
         const k = 32;
 
@@ -118,12 +110,12 @@ const pollGame = () => {
         const expectedWinner = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400));
         const expectedLoser = 1 - expectedWinner;
 
-        const updatedWinner = {
+        const updatedWinner: participantType = {
             ...winner,
             rating: Number((winnerRating + k * (1 - expectedWinner)).toFixed(2))
         };
 
-        const updatedLoser = {
+        const updatedLoser: participantType = {
             ...loser,
             rating: Number((loserRating + k * (0 - expectedLoser)).toFixed(2))
         };
@@ -137,24 +129,24 @@ const pollGame = () => {
         );
     };
 
-    const setUpWin = async (updatedNextRound) => {
+    // Parameter fixed to expect array of participantType
+    const setUpWin = async (updatedNextRound: participantType[]) => {
         const sortedParticipants = [...allParticipants].sort((a, b) => b.rating - a.rating);
         setFinalWinner(updatedNextRound[0]);
         setAllParticipants(sortedParticipants);
 
         try {
-            // Create updated poll object directly
             const updatedPoll = {
                 ...poll,
                 participants: allParticipants.map(p => ({
                     name: p.name,
                     image: p.image,
-                    rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating) || 1000
+                    rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating as unknown as string) || 1000
                 })),
                 scoreboard: sortedParticipants.map(p => ({
                     name: p.name,
                     image: p.image,
-                    rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating) || 1000,
+                    rating: typeof p.rating === 'number' ? p.rating : parseFloat(p.rating as unknown as string) || 1000,
                 })),
             };
 
@@ -179,7 +171,6 @@ const pollGame = () => {
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden py-10">
-            {/* Decorative blurred background shapes */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-700 opacity-30 rounded-full blur-3xl -z-10 animate-pulse" style={{ filter: 'blur(120px)' }} />
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 opacity-20 rounded-full blur-3xl -z-10 animate-pulse delay-200" style={{ filter: 'blur(120px)' }} />
             <div className="relative z-10 flex flex-col items-center w-full max-w-2xl mx-auto p-8">
@@ -189,7 +180,7 @@ const pollGame = () => {
                     <div className="text-center mt-10">
                         <h2 className="text-3xl font-bold text-green-400 mb-5 drop-shadow-lg">🏆 Winner: {finalWinner.name}</h2>
                         <img
-                            src={finalWinner.image == '' ? `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(finalWinner.username)}` : finalWinner.image}
+                            src={finalWinner.image === '' ? `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(finalWinner.name)}` : finalWinner.image}
                             alt={finalWinner.name}
                             className="rounded-xl object-cover shadow-lg mx-auto w-64 h-64 mb-6 bg-white"
                         />
@@ -206,14 +197,14 @@ const pollGame = () => {
                     <>
                         <h3 className="text-lg font-semibold mb-4 text-indigo-200">Round {round} of {totRounds}</h3>
                         <div
-                            key={currentPair.map((p) => p).join('-')}
+                            key={currentPair.map((p) => p.name).join('-')}
                             className="grid grid-cols-1 md:grid-cols-2 gap-10 p-6 justify-items-center w-full"
                         >
                             {currentPair.map((person, idx) => (
                                 <div key={idx} className='flex flex-col w-full h-full transition-all duration-400 hover:scale-105 items-center'>
                                     <h3 className="text-lg font-bold mb-2 text-white">{person.name}</h3>
                                     <img
-                                        src={person.image == '' ? `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(person.username)}` : person.image}
+                                        src={person.image === '' ? `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(person.name)}` : person.image}
                                         alt={person.name}
                                         className="rounded-xl object-cover shadow-lg w-56 h-56 bg-white border-indigo-700 cursor-pointer"
                                         onClick={() => vote(person)}

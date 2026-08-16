@@ -1,11 +1,11 @@
-import { deletePoll } from '../../../../lib/polls';
+import { deletePoll } from '@/lib/db';
 
-export async function DELETE(request) {
+export async function DELETE(request: Request) {
     try {
-        const { id } = request.body;
+        const { id } = await request.json();
         await deletePoll(id);
 
-        return new Response(JSON.stringify({ success: true, poll: poll, message: 'Poll deleted correctly' }), {
+        return new Response(JSON.stringify({ success: true, message: 'Poll deleted correctly' }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import { User, Poll } from "./models.js";
+import { User, Poll } from "./models";
 import bcrypt from "bcrypt";
+import { pollType, userType } from "./types";
 
 /**
  * Connects to MongoDB
@@ -27,7 +28,7 @@ export const getUsersFromDb = async () => {
  * @param {criteria} criteria - The criteria
  * @returns {User} User - A user saved in the DB
  */
-export const getUserFromDb = async (criteria) => {
+export const getUserFromDb = async (criteria: { email: string }) => {
     await connectDB();
     return await User.findOne({ email: criteria.email });
 };
@@ -36,23 +37,25 @@ export const getUserFromDb = async (criteria) => {
  *
  * @param {newUser} newUser - User to create in DB
 */
-export const createUserInDb = async (newUser) => {
+export const createUserInDb = async (name: string, email: string, password: string) => {
     await connectDB();
-    const existingUser = await User.find({ email: newUser.email });
+    const existingUser = await User.find({ email });
     // Check if the user already exists
     if (existingUser.length > 0) {
         throw new Error('User already exists');
     }
     
-    const hashedPassword = await bcrypt.hash(newUser.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({ 
-        username, 
-        email, 
+        username: name, 
+        email: email, 
         password: hashedPassword 
     });
     
     await user.save();
+
+    return user;
 };
 /**
  * Updates an existing user
@@ -60,7 +63,7 @@ export const createUserInDb = async (newUser) => {
  * @param {user} user - the user you need to update
  * @returns {void}
  */
-export const updateUserInDb = async (user) => {
+export const updateUserInDb = async (user: userType) => {
     await connectDB();
     try  {
         await User.findByIdAndUpdate(user._id, { $set: user }, { new: true }); // Update the user and return the updated document
@@ -74,7 +77,7 @@ export const updateUserInDb = async (user) => {
  * @param {user} user - the user you need to delete
  * @returns {void}
  */
-export const deleteUserFromDb = async (user) => {
+export const deleteUserFromDb = async (user: userType) => {
     await connectDB();
     try {
         await User.findByIdAndDelete(user._id); // Delete the user by ID
@@ -83,58 +86,58 @@ export const deleteUserFromDb = async (user) => {
     }
 };
 
-/**
- * Helper function to get every poll from MongoDB
- */
-export const getPollsFromDb = async () => {
-    await connectDB();
-    return await Poll.find({});
+export async function getPolls() 
+{
+    try {
+        await connectDB();
+        const polls = await Poll.find({});
+        
+        return polls;
+    } catch (err) {
+        console.error('Error getting polls', err);
+    }
 }
-/**
- * Finds poll in DB based on id
- *
- * @param {criteria} criteria - The criteria(id)
- * @returns {Poll} Poll - A poll saved in the DB
- */
-export const getPollFromDb = async (criteria) => {
-    await connectDB();
-    return await Poll.findOne(criteria); // Ensure you're passing the correct criteria
-};
-/**
- * Creates poll in DB
- *
- * @param {newPoll} newPoll - Poll to create in DB
-*/
-export const createPollInDb = async (newPoll) => {
-    await connectDB();
-    const poll = new Poll(newPoll);
-    await poll.save();
-};
-/**
- * Updates an existing poll
- *
- * @param {poll} poll - the poll you need to update
- * @returns {void}
- */
-export const updatePollInDb = async (poll) => {
-    await connectDB();
-    try  {
-        await Poll.findByIdAndUpdate(poll._id, { $set: poll }, { new: true }); // Update the user and return the updated document
+
+export async function updatePoll(newPoll: pollType) {
+    try {
+        await connectDB();
+        await Poll.findByIdAndUpdate(newPoll._id, { $set: newPoll }, { new: true }); // Update the poll and return the updated document
+
+        return newPoll;
     } catch (err) {
         console.error('Error updating poll', err);
     }
-};
-/**
- * Deletes a poll from the database
- *
- * @param {poll} poll - the poll you need to delete
- * @returns {void}
- */
-export const deletePollFromDb = async (poll) => {
+}
+
+export async function getPoll(id: string) {
     await connectDB();
+    const poll = await Poll.findOne({ _id: id });
+
+    return poll;
+}
+
+export async function createPoll(poll: pollType) {
     try {
+        await connectDB();
+        const newPoll = new Poll(poll);
+        await newPoll.save();
+        return newPoll;
+    } catch (err) {
+        console.error('Error creating poll', err);
+    }
+}
+
+export async function deletePoll(id: number) {
+    try {
+        await connectDB();
+        const poll = await Poll.findOne({ _id: id }); 
+        if (!poll) {
+            throw new Error('Poll not found');
+        }
         await Poll.findByIdAndDelete(poll._id); // Delete the user by ID
+        return { success: true, message: 'Poll deleted successfully' };
     } catch (err) {
         console.error('Error deleting poll', err);
+        return { success: false, message: err.message };
     }
-};
+}

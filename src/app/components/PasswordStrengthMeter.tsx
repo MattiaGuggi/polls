@@ -1,7 +1,7 @@
 import { Check, X } from "lucide-react";
 import React from "react";
 
-const PasswordCriteria = ({ password }) => {
+const PasswordCriteria = ({ password } : { password: string }) => {
   const criteria = [
     { label: "At least 6 characters", met: password.length >= 6 },
     { label: "Contains uppercase letter", met: /[A-Z]/.test(password) },

@@ -1,4 +1,4 @@
-import { getPoll } from '../../../../lib/polls';
+import { getPoll } from '@/lib/db';
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);

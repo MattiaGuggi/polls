@@ -1,8 +1,8 @@
-import { registerUser } from '@/lib/auth';
+import { createUserInDb } from '@/lib/db';
 
-export async function POST(request) {
+export async function POST(request: Request) {
     const { name, email, password } = await request.json();
-    const user = registerUser(name, email, password);
+    const user = await createUserInDb(name, email, password);
     if (user) {
         return new Response(JSON.stringify({ success: true, user }), {
             status: 201,

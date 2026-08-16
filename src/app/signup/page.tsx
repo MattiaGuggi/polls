@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { validateEmail } from '../../lib/utils';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
@@ -10,11 +9,11 @@ import { useGSAP } from '@gsap/react';
 
 const signup = () => {
   const containerRef = useRef(null);
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { signup, isAuthenticated } = useUser();
   const router = useRouter();
   
@@ -25,7 +24,7 @@ const signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!validateEmail(email)) {
+    if (!(/\S+@\S+\.\S+/.test(email))) {
       setError("Invalid email format");
       return;
     }

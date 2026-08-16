@@ -1,6 +1,5 @@
 'use client'
 import React, { useRef } from 'react'
-import { validateEmail } from '../../lib/utils';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../context/UserContext';
@@ -10,10 +9,10 @@ import { useGSAP } from '@gsap/react';
 
 const login = () => {
   const containerRef = useRef(null);
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { login, isAuthenticated } = useUser();
   const router = useRouter();
   
@@ -24,7 +23,7 @@ const login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!validateEmail(email)) {
+    if (!(/\S+@\S+\.\S+/.test(email))) {
       setError("Invalid email format");
       return;
     }
@@ -98,11 +97,6 @@ const login = () => {
               ) : (
                 <EyeOff className="size-5 text-indigo-900" onClick={toggleIcon} />
               )}
-            </div>
-          </div>
-          <div className='flex items-center mb-6'>
-            <div onClick={() => handleForgotPassword()} className='text-sm bg-gradient-to-r from-indigo-950 to-indigo-950 text-transparent bg-clip-text hover:underline cursor-pointer'>
-              Forgot password?
             </div>
           </div>
           <button

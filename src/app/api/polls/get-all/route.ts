@@ -1,4 +1,4 @@
-import { getPolls } from '../../../../lib/polls';
+import { getPolls } from '@/lib/db';
 
 export async function GET() {
     const polls = await getPolls();

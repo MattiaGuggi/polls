@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { MoveLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default async function pollPage ({ params }) {
+const pollPage = async ({ params }) => {
   const { id } = await params;
   let poll = null;
 
@@ -42,3 +42,6 @@ export default async function pollPage ({ params }) {
     </div>
   )
 }
+
+export default pollPage;
+

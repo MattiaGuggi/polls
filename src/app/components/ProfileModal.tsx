@@ -6,7 +6,7 @@ import gsap from 'gsap';
 
 const ProfileModal = ({ message, setMessage, currentUser, handleSubmit, setCurrentUser, setIsOpen }) => {
   const containerRef = useRef(null);
-  const [isClosing, setIsClosing] = useState(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
 
   // Opening animation
   useGSAP(() => {

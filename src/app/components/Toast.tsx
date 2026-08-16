@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-const Toast = ({ message, type = 'info', onClose }) => {
+const Toast = ({ message, type = 'info', onClose } : { message: string, type: string, onClose?: () => void }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             onClose();
