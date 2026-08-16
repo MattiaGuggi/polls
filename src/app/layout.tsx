@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { UserProvider } from './context/UserContext';
 import './globals.css';
+
+export const metadata: Metadata = {
+  title: "PollsApp",
+  description: "Create and vote polls.",
+};
 
 export default function RootLayout({
   children,
