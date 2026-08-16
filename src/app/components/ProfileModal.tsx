@@ -5,31 +5,34 @@ import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 
 const ProfileModal = ({ message, setMessage, currentUser, handleSubmit, setCurrentUser, setIsOpen }) => {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isClosing, setIsClosing] = useState<boolean>(false);
 
   // Opening animation
   useGSAP(() => {
     gsap.fromTo(
       containerRef.current,
-      { opacity: 0, y: 100 },
+      { opacity: 0, y: 80, scale: 0.95 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.8,
-        ease: 'power2.out',
+        scale: 1,
+        duration: 0.6,
+        ease: 'power3.out',
+        clearProps: 'all',
       }
     );
-  }, []);
+  }, { scope: containerRef });
 
-  // Run closing animation when isClosing is true
+  // Closing animation
   useEffect(() => {
-    if (isClosing) {
+    if (isClosing && containerRef.current) {
       gsap.to(containerRef.current, {
         opacity: 0,
-        y: -500,
-        duration: 0.5,
-        ease: 'power2.out',
+        y: -40,
+        scale: 0.95,
+        duration: 0.4,
+        ease: 'power3.in',
         onComplete: () => setIsOpen(false),
       });
     }
@@ -40,15 +43,24 @@ const ProfileModal = ({ message, setMessage, currentUser, handleSubmit, setCurre
   };
 
   return (
-    <div ref={containerRef} className='w-sm bg-white px-16 py-16 rounded-3xl shadow-lg flex flex-col items-center shadow-custom'>
-      <h1 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text'>Your Profile</h1>
+    <div 
+      ref={containerRef} 
+      className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 px-8 py-10 rounded-3xl shadow-2xl shadow-indigo-950/60 flex flex-col items-center text-slate-100"
+    >
+      <h1 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-indigo-300 via-white to-violet-300 text-transparent bg-clip-text tracking-tight">
+        Your Profile
+      </h1>
+
       {message && (
-        <Toast
-          message={message}
-          type={'success'}
-          onClose={() => setMessage('')}
-        />
+        <div className="w-full mb-4">
+          <Toast
+            message={message}
+            type={'success'}
+            onClose={() => setMessage('')}
+          />
+        </div>
       )}
+
       <ProfileModalWrapper
         currentUser={currentUser}
         handleSubmit={handleSubmit}

@@ -1,9 +1,11 @@
 'use client';
+
 import Link from "next/link";
 import React, { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { Vote, Home as HomeIcon, BarChart3, User } from "lucide-react";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -25,64 +27,77 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     });
 
     tl.to([headerRef.current, mainRef.current], {
+      opacity: 1,
+      y: 0,
       filter: 'blur(0px)',
       scale: 1,
       duration: 0.4,
       ease: 'expo.out',
       stagger: 0,
-    }, '-=0.3'); // Valid position offset inside a timeline
+      clearProps: 'all', // Clears inline filter & transform styles on completion
+    }, '-=0.3');
   }, { dependencies: [pathname], scope: containerRef });
 
+  const navItems = [
+    { name: "Home", href: "/", icon: HomeIcon, active: pathname === "/" },
+    { name: "Polls", href: "/poll", icon: BarChart3, active: pathname.startsWith("/poll") },
+    { name: "Profile", href: "/profile", icon: User, active: pathname.startsWith("/profile") },
+  ];
+
   return (
-    <div className="min-h-screen w-full flex flex-col relative overflow-hidden" ref={containerRef}>
-      {/* Decorative blurred background shapes */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-700 opacity-30 rounded-full blur-3xl -z-10 animate-pulse" style={{ filter: 'blur(120px)' }} />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 opacity-20 rounded-full blur-3xl -z-10 animate-pulse delay-200" style={{ filter: 'blur(120px)' }} />
-      <div className="relative z-10 flex w-full min-h-screen h-full opacity-100">
+    <div className="min-h-screen w-full flex flex-col relative overflow-hidden bg-transparent" ref={containerRef}>
+      {/* Background radial spotlights */}
+      <div className="absolute top-0 left-1/4 w-[40rem] h-[20rem] bg-indigo-600/15 rounded-full blur-[140px] -z-10 pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[35rem] h-[20rem] bg-violet-600/15 rounded-full blur-[140px] -z-10 pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col w-full min-h-screen">
+        {/* Floating Glass Bar */}
         <header
           ref={headerRef}
-          className="absolute flex flex-wrap sm:justify-start sm:flex-nowrap w-full h-20 top-0 z-20 bg-white/10 dark:bg-neutral-900/30 backdrop-blur-xl border-b border-indigo-800/40 shadow-xl"
-          style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.25)' }}
+          className="fixed top-4 inset-x-0 mx-auto z-50 max-w-5xl px-4 sm:px-6 w-full"
         >
-          <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between h-full">
-            <div
-              id="hs-navbar-example"
-              className="hidden hs-collapse overflow-hidden transition-all duration-300 basis-full grow sm:block"
-              aria-labelledby="hs-navbar-example-collapse"
-            >
-              <div className="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:ps-5">
-                <Link
-                  href="/"
-                  className={`text-lg font-extrabold tracking-wide transition-all duration-200 px-4 py-2 rounded-xl
-                    ${pathname === "/" ? "bg-gradient-to-r from-indigo-500 to-indigo-900 text-white shadow-lg scale-105" :
-                    "text-indigo-100 hover:bg-gradient-to-r hover:from-indigo-700 hover:to-indigo-900 hover:text-white"}`}
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/poll"
-                  className={`text-lg font-extrabold tracking-wide transition-all duration-200 px-4 py-2 rounded-xl
-                    ${pathname.startsWith("/poll") ? "bg-gradient-to-r from-indigo-500 to-indigo-900 text-white shadow-lg scale-105" :
-                    "text-indigo-100 hover:bg-gradient-to-r hover:from-indigo-700 hover:to-indigo-900 hover:text-white"}`}
-                >
-                  Polls
-                </Link>
-                <Link
-                  href="/profile"
-                  className={`text-lg font-extrabold tracking-wide transition-all duration-200 px-4 py-2 rounded-xl
-                    ${pathname.startsWith("/profile") ? "bg-gradient-to-r from-indigo-500 to-indigo-900 text-white shadow-lg scale-105" :
-                    "text-indigo-100 hover:bg-gradient-to-r hover:from-indigo-700 hover:to-indigo-900 hover:text-white"}`}
-                >
-                  Profile
-                </Link>
+          <div className="w-full h-16 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl shadow-indigo-950/40 flex items-center justify-between px-6 transition-all duration-300">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="size-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                <Vote className="size-5" />
               </div>
-            </div>
-          </nav>
+              <span className="font-bold text-lg tracking-tight text-white group-hover:text-indigo-300 transition-colors">
+                Polls<span className="text-indigo-400">App</span>
+              </span>
+            </Link>
+
+            {/* Navigation Links */}
+            <nav className="flex items-center gap-1.5 sm:gap-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center gap-2 text-sm font-semibold transition-all duration-200 px-3.5 py-2 rounded-xl
+                      ${
+                        item.active
+                          ? "bg-indigo-600/90 text-white shadow-lg shadow-indigo-600/30 border border-indigo-400/30 scale-100"
+                          : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
+                      }`}
+                  >
+                    <Icon className={`size-4 ${item.active ? "text-white" : "text-slate-400"}`} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
         </header>
-        <main ref={mainRef} className="w-full h-full flex-1 flex flex-col items-center justify-center mt-20">{children}</main>
+
+        {/* Content Container */}
+        <main ref={mainRef} className="w-full flex-1 flex flex-col items-center justify-center">
+          {children}
+        </main>
       </div>
     </div>
   );
-}
+};
 
 export default RootLayout;

@@ -43,7 +43,7 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setPollData, pollData }: ModalPr
   }, [isOpen]);
 
   useGSAP(() => {
-    if (containerRef.current) {
+    if (containerRef.current && isOpen) {
       gsap.fromTo(
         containerRef.current,
         { opacity: 0, y: 100 },
@@ -52,10 +52,11 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setPollData, pollData }: ModalPr
           y: 0,
           duration: 0.8,
           ease: 'power2.out',
+          clearProps: 'all', // Removes residual GPU transform/opacity layers
         }
       );
     }
-  }, []);
+  }, { dependencies: [isOpen], scope: containerRef });
 
   if (typeof window === 'undefined' || !isOpen) return null;
 
@@ -99,7 +100,7 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setPollData, pollData }: ModalPr
           )}
           <div className="flex items-center justify-center">
             <button
-              className="border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl flex items-center justify-center text-lg font-medium w-11 h-11 shadow-custom transition-all duration-200 hover:scale-110"
+              className="border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl flex items-center justify-center text-lg font-medium w-11 h-11 shadow-custom transition-transform duration-200 hover:scale-110"
               onClick={() => setIsAdding(true)}
             >
               <Plus />
@@ -150,14 +151,14 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setPollData, pollData }: ModalPr
                 )}
                 <div className="flex items-center justify-center gap-10">
                   <button
-                    className="border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl text-lg font-medium w-24 h-11 shadow-custom hover:scale-110 transition-all duration-200"
+                    className="border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl text-lg font-medium w-24 h-11 shadow-custom hover:scale-110 transition-transform duration-200"
                     onClick={handleAddParticipant}
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setIsAdding(false)}
-                    className="cursor-pointer w-24 h-11 bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text font-bold rounded-lg shadow-lg hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition duration-200"
+                    className="cursor-pointer w-24 h-11 bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text font-bold rounded-lg shadow-lg hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition-transform duration-200"
                   >
                     Cancel
                   </button>
@@ -170,14 +171,14 @@ const Modal = ({ createPoll, setIsOpen, isOpen, setPollData, pollData }: ModalPr
         <div className="flex justify-center items-center w-full gap-10 mt-6">
           <button
             onClick={createPoll}
-            className="border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl text-lg font-medium w-24 h-11 shadow-custom transition-all duration-200 hover:scale-110"
+            className="border cursor-pointer bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-xl text-lg font-medium w-24 h-11 shadow-custom transition-transform duration-200 hover:scale-110"
           >
             Create
           </button>
 
           <button
             onClick={() => setIsOpen(false)}
-            className="cursor-pointer w-24 h-11 bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text font-bold rounded-lg shadow-lg hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition duration-200"
+            className="cursor-pointer w-24 h-11 bg-gradient-to-r from-indigo-700 to-indigo-950 text-transparent bg-clip-text font-bold rounded-lg shadow-lg hover:from-indigo-800 hover:to-indigo-950 hover:scale-110 transition-transform duration-200"
           >
             x
           </button>
