@@ -79,6 +79,8 @@ const PollGame = () => {
     loser: participantType,
     currentAll: participantType[]
   ): participantType[] => {
+    if (!winner || !loser) return currentAll;
+
     const k = 32;
     const winnerRating = typeof winner.rating === 'number' ? winner.rating : parseFloat(winner.rating as any) || 1000;
     const loserRating = typeof loser.rating === 'number' ? loser.rating : parseFloat(loser.rating as any) || 1000;
@@ -130,13 +132,23 @@ const PollGame = () => {
   };
 
   const vote = (winner: participantType) => {
-    const winnerObj = participants[currentIndex]?.name === winner.name ? participants[currentIndex] : participants[currentIndex + 1];
-    const loserObj = participants[currentIndex]?.name === winner.name ? participants[currentIndex + 1] : participants[currentIndex];
+    const p1 = participants[currentIndex];
+    const p2 = participants[currentIndex + 1];
 
-    const updatedAll = updateElo(winnerObj, loserObj, allParticipants);
-    setAllParticipants(updatedAll);
+    let updatedAll = allParticipants;
+    let winningParticipant = winner;
 
-    const newNextRound = [...nextRound, winnerObj];
+    // Only update Elo if both participants exist
+    if (p1 && p2) {
+      const winnerObj = p1.name === winner.name ? p1 : p2;
+      const loserObj = p1.name === winner.name ? p2 : p1;
+      winningParticipant = winnerObj;
+
+      updatedAll = updateElo(winnerObj, loserObj, allParticipants);
+      setAllParticipants(updatedAll);
+    }
+
+    const newNextRound = [...nextRound, winningParticipant];
 
     if (currentIndex + 2 >= participants.length) {
       if (newNextRound.length === 1) {
