@@ -1,8 +1,8 @@
 import { pgTable, uuid, varchar, text, jsonb } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Embedded Participant Interface (formerly subdocument schema)
-export interface Participant {
+// Types for embedded JSONB structures
+export interface IParticipant {
   name: string;
   image?: string;
   rating?: number;
@@ -26,20 +26,14 @@ export const polls = pgTable("polls", {
   creatorId: uuid("creator_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  participants: jsonb("participants")
-    .$type<Participant[]>()
-    .notNull()
-    .default([]),
-  scoreboard: jsonb("scoreboard")
-    .$type<Participant[]>()
-    .notNull()
-    .default([]),
+  participants: jsonb("participants").$type<IParticipant[]>().notNull().default([]),
+  scoreboard: jsonb("scoreboard").$type<IParticipant[]>().notNull().default([]),
   image: text("image").default(
     "https://cdn.uwufufu.com/selection/1740749490505-Ana%20de%20Armas.jpg"
   ),
 });
 
-// Relations
+// Relational Definitions
 export const pollsRelations = relations(polls, ({ one }) => ({
   creator: one(users, {
     fields: [polls.creatorId],
@@ -47,11 +41,7 @@ export const pollsRelations = relations(polls, ({ one }) => ({
   }),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
-  polls: many(polls),
-}));
-
-// TypeScript Type Inference
+// Inferred TypeScript Types
 export type UserSelect = typeof users.$inferSelect;
 export type UserInsert = typeof users.$inferInsert;
 export type PollSelect = typeof polls.$inferSelect;
