@@ -5,26 +5,32 @@ import bcrypt from "bcrypt";
 import * as schema from "./schema";
 import { users, polls } from "./schema";
 
-const DATABASE_URL = process.env.DATABASE_URL;
-
-if (!DATABASE_URL) {
-  throw new Error("Please define the DATABASE_URL environment variable inside .env.local");
-}
-
-const sql = neon(DATABASE_URL);
+const dbUrl = process.env.DATABASE_URL || process.env.MONGODB_URI || "";
+const sql = neon(dbUrl);
 export const db = drizzle(sql, { schema });
 
 /**
- * Ensures database configuration is available
+ * Normalizes input to extract string IDs whether passed as a string or an object
+ */
+const getId = (val: any): string => {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  return val._id || val.id || val.creator || "";
+};
+
+/**
+ * Connects to PostgreSQL
  */
 export const connectDB = async () => {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not defined in environment variables.");
+  if (!dbUrl) {
+    throw new Error(
+      "DATABASE_URL or MONGODB_URI is not set in environment variables."
+    );
   }
 };
 
 /**
- * Helper function to get every user from PostgreSQL
+ * Helper function to get every user from DB
  */
 export const getUsersFromDb = async () => {
   await connectDB();
@@ -32,57 +38,64 @@ export const getUsersFromDb = async () => {
 };
 
 /**
- * Finds user in DB based on email
+ * Finds user in DB based on email/username
+ *
+ * @param {criteria} criteria - The criteria
+ * @returns {Promise<any | null>} User - A user saved in the DB
  */
 export const getUserFromDb = async (criteria: { email: string }) => {
   await connectDB();
-  const result = await db.select().from(users).where(eq(users.email, criteria.email));
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, criteria.email));
   return result[0] || null;
 };
 
 /**
- * Creates user in DB
+ * Creates user in DB 
+ *
+ * @param {string} name - User's name / username
+ * @param {string} email - Email address
+ * @param {string} password - Password
  */
-export const createUserInDb = async (
-  name: string,
-  email: string,
-  password: string,
-  surname: string = ""
-) => {
+export const createUserInDb = async (name: string, email: string, password: string) => {
   await connectDB();
-
   const existingUser = await getUserFromDb({ email });
+
   if (existingUser) {
     throw new Error("User already exists");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const [newUser] = await db
+  const [user] = await db
     .insert(users)
     .values({
       username: name,
-      email,
+      email: email,
       password: hashedPassword,
-      name,
-      surname,
+      name: name,
+      surname: "",
     })
     .returning();
 
-  return newUser;
+  return user;
 };
 
 /**
  * Updates an existing user
+ *
+ * @param {any} user - the user you need to update
  */
-export const updateUserInDb = async (user: Partial<schema.UserSelect> & { id: string }) => {
+export const updateUserInDb = async (user: any) => {
   await connectDB();
   try {
-    const { id, ...updateData } = user;
+    const userId = getId(user);
     const [updated] = await db
       .update(users)
-      .set(updateData)
-      .where(eq(users.id, id))
+      .set(user)
+      .where(eq(users._id, userId))
       .returning();
     return updated;
   } catch (err) {
@@ -92,90 +105,88 @@ export const updateUserInDb = async (user: Partial<schema.UserSelect> & { id: st
 
 /**
  * Deletes user from DB
+ *
+ * @param {any} user - the user you need to delete
  */
-export const deleteUserFromDb = async (user: { id: string }) => {
+export const deleteUserFromDb = async (user: any) => {
   await connectDB();
   try {
-    await db.delete(users).where(eq(users.id, user.id));
+    const userId = getId(user);
+    await db.delete(users).where(eq(users._id, userId));
   } catch (err) {
     console.error("Error deleting user", err);
   }
 };
 
-/**
- * Retrieves all polls from DB with populated creator details
- */
 export async function getPolls() {
   try {
     await connectDB();
-    return await db.query.polls.findMany({
-      with: { creator: true },
-    });
+    const result = await db.select().from(polls);
+    return result;
   } catch (err) {
     console.error("Error getting polls", err);
   }
 }
 
-/**
- * Updates an existing poll
- */
-export async function updatePoll(newPoll: Partial<schema.PollSelect> & { id: string }) {
+export async function updatePoll(newPoll: any) {
   try {
     await connectDB();
-    const { id, ...updateData } = newPoll;
+    const pollId = getId(newPoll);
     const [updated] = await db
       .update(polls)
-      .set(updateData)
-      .where(eq(polls.id, id))
+      .set(newPoll)
+      .where(eq(polls._id, pollId))
       .returning();
 
-    return updated;
+    return updated || newPoll;
   } catch (err) {
     console.error("Error updating poll", err);
   }
 }
 
-/**
- * Finds poll in DB by ID with creator details
- */
 export async function getPoll(id: string) {
   await connectDB();
-  const poll = await db.query.polls.findFirst({
-    where: eq(polls.id, id),
-    with: { creator: true },
-  });
-
-  return poll || null;
+  const pollId = getId(id);
+  const result = await db.select().from(polls).where(eq(polls._id, pollId));
+  return result[0] || null;
 }
 
-/**
- * Creates poll in DB
- */
-export async function createPoll(poll: schema.PollInsert) {
+export async function createPoll(poll: any) {
   try {
     await connectDB();
-    const [newPoll] = await db.insert(polls).values(poll).returning();
+
+    const creatorId = getId(poll.creator);
+    const payload: any = {
+      name: poll.name,
+      creator: creatorId,
+      participants: poll.participants || [],
+      scoreboard: poll.scoreboard || [],
+      image: poll.image,
+    };
+
+    if (poll._id) payload._id = poll._id;
+
+    const [newPoll] = await db.insert(polls).values(payload).returning();
     return newPoll;
   } catch (err) {
     console.error("Error creating poll", err);
   }
 }
 
-/**
- * Deletes a poll from the database by ID
- */
-export async function deletePoll(id: string) {
+export async function deletePoll(id: any) {
   try {
     await connectDB();
-    const [deleted] = await db.delete(polls).where(eq(polls.id, id)).returning();
+    const pollId = getId(id);
 
-    if (!deleted) {
+    const poll = await getPoll(pollId);
+    if (!poll) {
       throw new Error("Poll not found");
     }
 
+    await db.delete(polls).where(eq(polls._id, poll._id));
     return { success: true, message: "Poll deleted successfully" };
   } catch (err: any) {
     console.error("Error deleting poll", err);
-    return { success: false, message: err.message || "Error deleting poll" };
+    return { success: false, message: err.message };
   }
 }
