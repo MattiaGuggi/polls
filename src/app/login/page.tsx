@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -23,26 +23,36 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (!(/\S+@\S+\.\S+/.test(email))) {
       setError("Invalid email format");
       return;
     }
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (data.success) {
-      login(data.user);
-      router.push('/');
-    } else {
-      setError(data.message || "Login failed");
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        login(data.user);
+        router.push('/');
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) router.push('/');
+    if (isAuthenticated) {
+      router.push('/');
+    }
   }, [isAuthenticated, router]);
 
   useGSAP(() => {
@@ -65,11 +75,9 @@ const Login = () => {
         ref={containerRef}
         className="max-w-md w-full bg-slate-900/60 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl shadow-indigo-950/60 overflow-hidden relative"
       >
-        {/* Glow accent */}
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="p-8 sm:p-10 relative z-10">
-          {/* Header */}
           <div className="flex flex-col items-center text-center mb-8">
             <div className="size-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 mb-4 border border-indigo-400/30">
               <Vote className="size-6" />
@@ -82,7 +90,6 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Error Banner */}
           {error && (
             <div className="mb-6 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-center gap-2.5">
               <AlertCircle className="size-4 shrink-0 text-rose-400" />
@@ -90,9 +97,7 @@ const Login = () => {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider pl-1">
                 Email Address
@@ -112,7 +117,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Password Field */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider pl-1">
                 Password
@@ -143,7 +147,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               className="cursor-pointer mt-2 w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/25 hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-slate-950 transition-all duration-200 active:scale-[0.98] text-base flex items-center justify-center gap-2 border border-indigo-400/30"
               type="submit"
@@ -154,7 +157,6 @@ const Login = () => {
           </form>
         </div>
 
-        {/* Card Footer */}
         <div className="px-8 py-4 bg-slate-950/40 border-t border-white/5 flex justify-center text-sm">
           <p className="text-slate-400">
             Don&apos;t have an account?{" "}

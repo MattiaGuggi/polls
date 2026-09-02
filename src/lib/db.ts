@@ -43,13 +43,22 @@ export const getUsersFromDb = async () => {
  * @param {criteria} criteria - The criteria
  * @returns {Promise<any | null>} User - A user saved in the DB
  */
-export const getUserFromDb = async (criteria: { email: string }) => {
+export const getUserFromDb = async (criteria: { email?: string, _id?: string }) => {
   await connectDB();
-  const result = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, criteria.email));
-  return result[0] || null;
+
+  if (!criteria) return null;
+
+  if (criteria._id) {
+    const [user] = await db.select().from(users).where(eq(users._id, criteria._id));
+    return user || null;
+  }
+
+  if (criteria.email) {
+    const [user] = await db.select().from(users).where(eq(users.email, criteria.email));
+    return user || null;
+  }
+
+  return null;
 };
 
 /**

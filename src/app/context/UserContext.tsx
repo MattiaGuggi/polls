@@ -1,7 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
 import Loading from '../loading';
 import { userType } from '@/lib/types';
 
@@ -12,7 +13,12 @@ interface IUserContext {
   login: (loggedUser: userType) => void;
   logout: () => void;
   signup: () => void;
+  loading: boolean;
 }
+
+const APP_PREFIX = 'polls_';
+const AUTH_KEY = `${APP_PREFIX}isAuthenticated`;
+const USER_KEY = `${APP_PREFIX}user`;
 
 const UserContext = createContext<IUserContext | null>(null);
 
@@ -21,53 +27,102 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<userType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
+  const pathname = usePathname();
 
-  useEffect(() => {
-    try {
-      const storedAuth = localStorage.getItem('isAuthenticated');
-      const storedUser = localStorage.getItem('user');
-
-      if (storedAuth === 'true' && storedUser) {
-        setIsAuthenticated(true);
-        setUser(JSON.parse(storedUser));
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Failed to parse auth state from localStorage:', error);
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('user');
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
+  const clearAuth = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(USER_KEY);
     }
-  }, []);
+  };
+
+  const logout = () => {
+    clearAuth();
+    router.push('/login');
+  };
 
   const login = (loggedUser: userType) => {
     setUser(loggedUser);
     setIsAuthenticated(true);
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('user', JSON.stringify(loggedUser));
-  };
-
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
-    router.push('/login');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(AUTH_KEY, 'true');
+      localStorage.setItem(USER_KEY, JSON.stringify(loggedUser));
+    }
   };
 
   const signup = () => {
     router.push('/signup');
   };
 
+  // 1. Restore & Verify Session on Mount
+  useEffect(() => {
+    const verifyAndRestoreSession = async () => {
+      if (typeof window === 'undefined') return;
+
+      const storedAuth = localStorage.getItem(AUTH_KEY);
+      const storedUserRaw = localStorage.getItem(USER_KEY);
+
+      if (storedAuth === 'true' && storedUserRaw) {
+        try {
+          const parsedUser: userType = JSON.parse(storedUserRaw);
+
+          if (parsedUser?._id) {
+            // Restore immediately from localStorage
+            setUser(parsedUser);
+            setIsAuthenticated(true);
+
+            // Optional DB verification check
+            try {
+              const response = await axios.get('/api/user', {
+                params: { userId: parsedUser._id },
+              });
+
+              if (response.data?.user) {
+                setUser(response.data.user);
+                localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
+              }
+            } catch (apiErr: any) {
+              // Only log out if backend explicitly confirms user no longer exists (401 Unauthorized)
+              if (apiErr.response?.status === 401) {
+                clearAuth();
+              }
+            }
+          } else {
+            clearAuth();
+          }
+        } catch (error) {
+          console.error('Failed to parse user from localStorage:', error);
+          clearAuth();
+        }
+      } else {
+        clearAuth();
+      }
+
+      setLoading(false);
+    };
+
+    verifyAndRestoreSession();
+  }, []);
+
+  // 2. Client-Side Route Protection (Replaces middleware for localStorage)
+  useEffect(() => {
+    if (loading) return;
+
+    const isPublicRoute = pathname === '/login' || pathname === '/signup';
+
+    if (!isAuthenticated && !isPublicRoute) {
+      router.push('/login');
+    } else if (isAuthenticated && isPublicRoute) {
+      router.push('/');
+    }
+  }, [isAuthenticated, loading, pathname, router]);
+
   if (loading) return <Loading />;
 
   return (
-    <UserContext.Provider value={{ isAuthenticated, user, setUser, login, logout, signup }}>
+    <UserContext.Provider value={{ isAuthenticated, user, setUser, login, logout, signup, loading }}>
       {children}
     </UserContext.Provider>
   );
