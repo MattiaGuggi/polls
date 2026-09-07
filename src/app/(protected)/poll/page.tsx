@@ -45,6 +45,7 @@ const PollView = () => {
 
   const createPoll = async () => {
     try {
+      // Sends pollData directly. All participant and main poll image fields will already contain uploaded Uploadthing CDN URL strings.
       const response = await axios.post(`/api/polls/create`, {
         ...pollData,
         creator: user?._id,

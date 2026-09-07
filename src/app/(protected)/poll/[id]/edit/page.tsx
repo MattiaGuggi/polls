@@ -8,6 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Loading from '@/app/loading';
 import Toast from '@/app/components/Toast';
 import { participantType, pollType } from '@/lib/types';
+import { uploadFiles } from '@/lib/uploadthing';
 
 const PollEdit = () => {
   const params = useParams();
@@ -18,6 +19,7 @@ const PollEdit = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [editParticipants, setEditParticipants] = useState<participantType[]>([]);
   const [savingIdx, setSavingIdx] = useState<number | null>(null);
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const [toastMessage, setToastMessage] = useState<string>('');
 
   const getPoll = useCallback(async () => {
@@ -47,6 +49,22 @@ const PollEdit = () => {
     setEditParticipants((prev) =>
       prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p))
     );
+  };
+
+  const handleImageUpload = async (idx: number, file: File) => {
+    setUploadingIdx(idx);
+    try {
+      // Direct upload to Uploadthing from the client
+      const res = await uploadFiles('imageUploader', { files: [file] });
+      if (res && res[0]?.url) {
+        handleParticipantChange(idx, 'image', res[0].url);
+        setToastMessage('Image uploaded to Uploadthing');
+      }
+    } catch (err) {
+      console.error('Failed to upload image to Uploadthing:', err);
+    } finally {
+      setUploadingIdx(null);
+    }
   };
 
   const handleSaveParticipant = async (idx: number) => {
@@ -178,23 +196,27 @@ const PollEdit = () => {
                     {/* Image Upload Button */}
                     <label className="w-full mb-4">
                       <span className="w-full py-2 px-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 hover:text-white rounded-xl cursor-pointer font-medium transition-all duration-200 text-xs flex items-center justify-center gap-2">
-                        <Upload className="w-3.5 h-3.5" />
-                        Choose Image
+                        {uploadingIdx === idx ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-3.5 h-3.5" />
+                            Choose Image
+                          </>
+                        )}
                       </span>
                       <input
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        disabled={uploadingIdx === idx}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              if (typeof reader.result === 'string') {
-                                handleParticipantChange(idx, 'image', reader.result);
-                              }
-                            };
-                            reader.readAsDataURL(file);
+                            handleImageUpload(idx, file);
                           }
                         }}
                       />
@@ -203,10 +225,10 @@ const PollEdit = () => {
                     {/* Save Action */}
                     <button
                       className={`w-full mt-auto py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 ${
-                        savingIdx === idx ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                        savingIdx === idx || uploadingIdx === idx ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
                       }`}
                       onClick={() => handleSaveParticipant(idx)}
-                      disabled={savingIdx === idx}
+                      disabled={savingIdx === idx || uploadingIdx === idx}
                     >
                       {savingIdx === idx ? (
                         <>
