@@ -4,10 +4,19 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import * as schema from "./schema";
 import { users, polls } from "./schema";
+import { UTApi } from "uploadthing/server";
 
 const dbUrl = process.env.DATABASE_URL || process.env.MONGODB_URI || "";
 const sql = neon(dbUrl);
 export const db = drizzle(sql, { schema });
+
+const utapi = new UTApi({ token: process.env.UPLOADTHING_TOKEN! });
+
+// Helper to extract the unique file key from the URL
+const getFileKey = (url: string | undefined | null) => {
+  if (!url || !url.includes("utfs.io")) return null; // Skip external images (like Dicebear)
+  return url.split("/").pop(); // Extracts 'xyz-123.jpg' from the URL
+};
 
 /**
  * Normalizes input to extract string IDs whether passed as a string or an object
@@ -185,13 +194,34 @@ export async function createPoll(poll: any) {
 export async function deletePoll(id: any) {
   try {
     await connectDB();
-    const pollId = getId(id);
+    const pollId = getId(id); // assuming getId is your custom parser
 
     const poll = await getPoll(pollId);
     if (!poll) {
       throw new Error("Poll not found");
     }
 
+    // 1. Gather all UploadThing file keys associated with this poll
+    const fileKeys: string[] = [];
+
+    // Check main poll image
+    const mainImgKey = getFileKey(poll.image);
+    if (mainImgKey) fileKeys.push(mainImgKey);
+
+    // Check all participant images
+    if (poll.participants && Array.isArray(poll.participants)) {
+      poll.participants.forEach((p) => {
+        const pKey = getFileKey(p.image);
+        if (pKey) fileKeys.push(pKey);
+      });
+    }
+
+    // 2. Delete files from UploadThing in one batch
+    if (fileKeys.length > 0) {
+      await utapi.deleteFiles(fileKeys);
+    }
+
+    // 3. Delete poll from the database
     await db.delete(polls).where(eq(polls._id, poll._id));
     return { success: true, message: "Poll deleted successfully" };
   } catch (err: any) {

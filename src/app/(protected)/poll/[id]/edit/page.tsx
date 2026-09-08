@@ -181,10 +181,16 @@ const PollEdit = () => {
     try {
       const participantToRemove = editParticipants[idx];
       
-      // Filter out the selected participant
+      // 1. Delete image from UploadThing storage if it exists
+      if (participantToRemove.image && participantToRemove.image.includes('utfs.io')) {
+        // We run this asynchronously and catch errors so it doesn't block UI updates if it fails
+        await axios.post('/api/uploadthing/delete', { url: participantToRemove.image }).catch(console.error);
+      }
+
+      // 2. Filter out the selected participant
       const updatedParticipants = editParticipants.filter((_, i) => i !== idx);
       
-      // Filter scoreboard by name (assuming name is the unique identifier for participants here)
+      // 3. Filter scoreboard by name
       const updatedScoreboard = (poll.scoreboard || []).filter(
         (p) => p.name !== participantToRemove.name
       );
@@ -195,6 +201,7 @@ const PollEdit = () => {
         scoreboard: updatedScoreboard,
       };
 
+      // 4. Update the database
       await axios.post('/api/polls/update', { poll: newPoll });
       await getPoll();
       setToastMessage('Participant removed successfully');
