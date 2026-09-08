@@ -39,9 +39,6 @@ const PollPage = async ({ params }: PollPageProps) => {
           <MoveLeft />
         </Link>
         <h1 className="text-3xl font-extrabold text-white mb-4 drop-shadow-lg tracking-tight">Poll Page</h1>
-        <p className="text-lg text-indigo-200 mb-6">
-          Object ID: <span className="font-mono text-green-300">{id}</span>
-        </p>
         <Link
           href={`/poll/${id}/play`}
           className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-indigo-700 to-indigo-950 text-white font-bold rounded-lg shadow-lg hover:from-indigo-800 hover:to-indigo-950 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200 hover:scale-105 text-center block"

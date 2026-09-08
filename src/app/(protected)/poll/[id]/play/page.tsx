@@ -183,7 +183,7 @@ const PollGame = () => {
           <MoveLeft />
         </button>
         <h2 className="text-3xl font-extrabold text-white mb-6 drop-shadow-lg tracking-tight">
-          🎮 Playing Poll: <span className="text-indigo-300">{id}</span>
+          🎮 Playing Poll: <span className="text-indigo-300">{poll?.name || id}</span>
         </h2>
 
         {finalWinner ? (
